@@ -1,0 +1,11 @@
+name = "eshkol"
+compatibility_date = "2024-09-23"
+pages_build_output_dir = "dist"
+
+[vars]
+SUPABASE_URL = "https://ucobuymcipdnulhgjrvd.supabase.co"
+SUPABASE_ANON = "sb_publishable_4K1NGXV1MR59vipXs8imdg_F5dNBd3s"
+
+[[r2_buckets]]
+binding = "MEDIA"
+bucket_name = "eshkol-media"
