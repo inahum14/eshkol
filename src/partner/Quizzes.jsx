@@ -15,16 +15,16 @@ export default function Quizzes({ quizzes, reload }) {
   return (
     <div className="stack">
       <div className="topbar"><div className="title">חידות</div></div>
-      <div className="card soft row between">
-        <div><b>{correct}</b> מתוך <b>{done.length}</b> נכונות</div>
-        <span className="chip gold">כל תשובה נכונה = ענב 🍇</span>
+      <div className="card soft center">
+        <div>צדקת ב-<b>{correct}</b> מתוך <b>{done.length}</b> חידות</div>
       </div>
 
       {open.length === 0 && <div className="empty">אין חידה פתוחה כרגע. חידה חדשה מגיעה כל יומיים 🧩</div>}
       {open.map((q) => (
-        <div key={q.id} className="card hero clickable" onClick={() => setActive(q)}>
-          <span className="chip gold">חידה חדשה</span>
-          <h3 style={{ marginTop: 10 }}>{q.question}</h3>
+        <div key={q.id} className="card hero clickable hero-center" onClick={() => setActive(q)}>
+          <div className="hero-ic">🧩</div>
+          <h2>חידה יומית חדשה</h2>
+          <span className="chip gold">תשובה נכונה = ענב 🍇</span>
           <button className="btn gold">לענות</button>
         </div>
       ))}

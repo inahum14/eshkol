@@ -154,9 +154,11 @@ function Home({ me, d, reload, onOpen, go, openSub }) {
       </div>
 
       {quiz && (
-        <div className="card soft clickable" onClick={() => go("quiz")}>
-          <div className="row between"><b>🧩 חידה חדשה מחכה</b><span className="chip gold">+ ענב</span></div>
-          <p className="small" style={{ marginTop: 6 }}>{quiz.question}</p>
+        <div className="card soft clickable quiz-teaser" onClick={() => go("quiz")}>
+          <div className="qt-ic">🧩</div>
+          <h3>חידה יומית חדשה</h3>
+          <span className="chip gold">תשובה נכונה = ענב 🍇</span>
+          <button className="btn">לענות</button>
         </div>
       )}
 

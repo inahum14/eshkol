@@ -276,3 +276,8 @@ body,.app{background:linear-gradient(180deg,#2A0A3C 0px,#4A1866 130px,#B98AB8 21
 
 /* brand a touch stronger */
 .brand { font-size: 25px; color: #F4CF73; text-shadow: 0 0 18px rgba(240,201,106,.35); letter-spacing: 1px; }
+
+.quiz-teaser { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 18px 16px; }
+.quiz-teaser h3 { margin: 0; font-size: 20px; }
+.quiz-teaser .qt-ic { font-size: 30px; line-height: 1; }
+.quiz-teaser .btn { min-width: 150px; min-height: 42px; }
