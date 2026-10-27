@@ -76,7 +76,7 @@ export default function SettingsAdmin() {
 
       <div className="card stack">
         <h3>📱 התראות דחופות שיעירו אותך</h3>
-        <p className="small">כדי ש"עידו, תקרא את זה" יעבור גם כשהטלפון במצב שינה: הגדרות ← ריכוז ← שינה ← אפליקציות ← להוסיף את <b>אשכול</b>.</p>
+        <p className="small">כדי ש"עידו, תקרא את זה" יעבור גם כשהטלפון במצב שינה: הגדרות ← ריכוז ← שינה ← אפליקציות ← להוסיף את <b>אני כאן</b>.</p>
       </div>
 
       <button className="btn ghost" onClick={() => supabase.auth.signOut()}>התנתקות</button>

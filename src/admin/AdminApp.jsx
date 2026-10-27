@@ -65,7 +65,7 @@ export default function AdminApp() {
     <div className="app wide">
       <div className="topbar">
         <div>
-          <div className="title">אשכול · ניהול</div>
+          <div className="title">אני כאן · ניהול</div>
           {partner && <div className="muted small">אצל עופרי עכשיו: <b>{fmtClock(partner.timezone)}</b> ({partner.timezone.split("/").pop().replace(/_/g, " ")})</div>}
           {partner?.last_active_at && <div className="muted small">פעילה לאחרונה: {fmtDateTime(partner.last_active_at, Intl.DateTimeFormat().resolvedOptions().timeZone)}</div>}
         </div>

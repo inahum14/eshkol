@@ -21,9 +21,9 @@ self.addEventListener("fetch", (e) => {
 
 self.addEventListener("push", (e) => {
   let d = {};
-  try { d = e.data.json(); } catch { d = { title: "אשכול", body: e.data?.text() }; }
+  try { d = e.data.json(); } catch { d = { title: "אני כאן", body: e.data?.text() }; }
   e.waitUntil(
-    self.registration.showNotification(d.title || "אשכול 🍇", {
+    self.registration.showNotification(d.title || "אני כאן 💜", {
       body: d.body || "",
       icon: "/icons/icon-192.png",
       badge: "/icons/icon-192.png",

@@ -60,7 +60,7 @@ Deno.serve(async (req) => {
     // streak: evening reminder if nothing viewed today
     if (L.hour >= 19 && L.hour < 22) {
       const { data: today } = await db.from("daily_activity").select("viewed_content").eq("local_date", L.date).maybeSingle();
-      if (!today?.viewed_content) await enqueueOnce("streak", "אשכול 🍇");
+      if (!today?.viewed_content) await enqueueOnce("streak", "אני כאן 💜");
     }
     // weekly video window
     const { data: win } = await db.rpc("weekly_video_window");

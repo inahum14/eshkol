@@ -58,7 +58,7 @@ function Login() {
     <div className="app">
       <div className="center" style={{ marginTop: "8vh" }}>
         <img src="/icons/icon-192.png" alt="" width="96" height="96" style={{ borderRadius: 24, margin: "0 auto 16px" }} />
-        <h1>אשכול</h1>
+        <h1>אני כאן</h1>
         <p className="muted">משהו קטן ממני, לכל הדרך</p>
       </div>
       {needsInstall && (
@@ -68,7 +68,7 @@ function Login() {
           <ol className="small" style={{ paddingInlineStart: 18, margin: 0 }}>
             <li>לוחצים על כפתור השיתוף <b>⬆︎</b> בתחתית Safari</li>
             <li>בוחרים <b>"הוספה למסך הבית"</b></li>
-            <li>פותחים את <b>אשכול</b> מהאייקון החדש ומתחברים משם</li>
+            <li>פותחים את <b>אני כאן</b> מהאייקון החדש ומתחברים משם</li>
           </ol>
         </div>
       )}

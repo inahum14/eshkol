@@ -117,6 +117,7 @@ function Home({ me, d, reload, onOpen, go, openSub }) {
 
   return (
     <div className="stack">
+      <div className="brand">אני כאן</div>
       <div className="topbar">
         <div>
           <div className="title">{greeting(myTz())}, {me.display_name}</div>

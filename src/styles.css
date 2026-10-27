@@ -221,3 +221,6 @@ body,.app{background:linear-gradient(180deg,#2A0A3C 0px,#4A1866 230px,#B98AB8 33
 .tabbar button.center-tab{color:#F0C96A}
 .streak{color:#C8902A}
 .card.hero,.card.hero h2{color:#FFF6E3}
+
+.brand { text-align: center; font-family: var(--display); font-size: 22px; letter-spacing: .5px; color: #F0C96A; margin: 2px 0 6px; }
+.brand::before, .brand::after { content: "·"; margin: 0 10px; opacity: .6; }
