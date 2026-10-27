@@ -13,7 +13,7 @@ import { WeeklyVideo, RequestFromYou, GrapeRequest, Vent, Archive } from "./Mine
 const TABS = [
   { id: "quiz", label: "חידות", ic: "🧩" },
   { id: "env", label: "מעטפות", ic: "💌" },
-  { id: "home", label: "בית", ic: "🍇", center: true },
+  { id: "home", label: "בית", ic: <PinHeart />, center: true },
   { id: "map", label: "מפה", ic: "📍" },
   { id: "mine", label: "שלי", ic: "💜" },
 ];
@@ -295,5 +295,14 @@ function Welcome({ me, done }) {
         <button className="btn gold block" disabled={busy} onClick={start}>יאללה, מתחילים</button>
       </div>
     </div>
+  );
+}
+
+function PinHeart() {
+  return (
+    <svg width="30" height="34" viewBox="0 0 30 34" aria-hidden="true">
+      <path d="M15 33C15 33 2 20.5 2 12.5C2 5.6 7.8 1 15 1s13 4.6 13 11.5C28 20.5 15 33 15 33Z" fill="#F0C96A" />
+      <path d="M15 18.6c-.3 0-4.6-2.8-4.6-5.6 0-1.5 1.1-2.6 2.5-2.6.9 0 1.6.5 2.1 1.2.5-.7 1.2-1.2 2.1-1.2 1.4 0 2.5 1.1 2.5 2.6 0 2.8-4.3 5.6-4.6 5.6Z" fill="#3E1157" />
+    </svg>
   );
 }
