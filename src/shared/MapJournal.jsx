@@ -5,11 +5,14 @@ import { uploadMedia, compressImage, mediaUrl } from "../lib/media";
 import { Sheet, useToast } from "../ui";
 import { fmtDate, myTz } from "../lib/time";
 
-const pin = (n, active) => L.divIcon({
-  className: "",
-  html: `<div style="width:30px;height:30px;border-radius:50%;background:${active ? "#C9A24A" : "#4B2A6B"};color:#F7F1E8;display:grid;place-items:center;font:700 13px Heebo,sans-serif;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.25)">${n}</div>`,
-  iconSize: [30, 30], iconAnchor: [15, 15],
-});
+const HEART_PIN = `<svg width="38" height="44" viewBox="0 0 30 34"><path d="M15 33C15 33 2 20.5 2 12.5C2 5.6 7.8 1 15 1s13 4.6 13 11.5C28 20.5 15 33 15 33Z" fill="#F0C96A" stroke="#fff" stroke-width="1.6"/><path d="M15 18.6c-.3 0-4.6-2.8-4.6-5.6 0-1.5 1.1-2.6 2.5-2.6.9 0 1.6.5 2.1 1.2.5-.7 1.2-1.2 2.1-1.2 1.4 0 2.5 1.1 2.5 2.6 0 2.8-4.3 5.6-4.6 5.6Z" fill="#3E1157"/></svg>`;
+const pin = (n, active) => active
+  ? L.divIcon({ className: "pin-now", html: HEART_PIN, iconSize: [38, 44], iconAnchor: [19, 43] })
+  : L.divIcon({
+      className: "",
+      html: `<div style="width:26px;height:26px;border-radius:50%;background:#4A1468;color:#F0C96A;display:grid;place-items:center;font:13px 'Secular One',sans-serif;border:2px solid #F0C96A;box-shadow:0 2px 6px rgba(0,0,0,.3)">${n}</div>`,
+      iconSize: [26, 26], iconAnchor: [13, 13],
+    });
 
 async function nominatim(path) {
   const r = await fetch(`https://nominatim.openstreetmap.org/${path}&format=jsonv2&accept-language=he`);
@@ -46,31 +49,58 @@ export default function MapJournal({ canEdit }) {
     layer.current.clearLayers();
     const pts = dests.filter((d) => d.lat != null);
     if (pts.length > 1) {
-      L.polyline(pts.map((d) => [d.lat, d.lng]), { color: "#7A4FA0", weight: 3, dashArray: "6 8" }).addTo(layer.current);
+      L.polyline(pts.map((d) => [d.lat, d.lng]), { color: "#C9922B", weight: 3, dashArray: "2 9", lineCap: "round" }).addTo(layer.current);
     }
     pts.forEach((d, i) => {
       L.marker([d.lat, d.lng], { icon: pin(i + 1, i === pts.length - 1) }).on("click", () => setSel(d)).addTo(layer.current);
     });
-    if (pts.length) map.current.fitBounds(pts.map((d) => [d.lat, d.lng]), { padding: [40, 40], maxZoom: 8 });
+    if (pts.length) map.current.fitBounds(pts.map((d) => [d.lat, d.lng]), { padding: [50, 50], maxZoom: 7 });
   }, [dests]);
 
+  const countries = new Set(dests.map((d) => d.country).filter(Boolean)).size;
+  const doneCount = dests.reduce((n, d) => n + d.experiences.filter((e) => e.status === "done").length, 0);
+  const ordered = [...dests].reverse();
+
   return (
-    <div className="stack">
-      <div className="topbar"><div className="title">המסלול</div></div>
+    <div className="stack map-page">
+      {canEdit && (
+        <div className="env-head">
+          <h1>המסלול שלי</h1>
+          <p>{dests.length ? `${countries} מדינות · ${dests.length} יעדים · ${doneCount} חוויות` : "כאן יתמלא כל הטיול שלך"}</p>
+        </div>
+      )}
+      {!canEdit && dests.length > 0 && <p className="map-stats">{countries} מדינות · {dests.length} יעדים · {doneCount} חוויות</p>}
       <div ref={mapEl} className="map" />
-      {canEdit && <button className="btn gold block" onClick={() => setAdding(true)}>📍 הגעתי ליעד חדש</button>}
-      <div className="list">
-        {[...dests].reverse().map((d) => (
-          <div key={d.id} className="item" onClick={() => setSel(d)}>
-            <div className="ico">📍</div>
-            <div className="grow">
-              <div className="t">{d.name}</div>
-              <div className="muted small">{fmtDate(d.arrived_at, myTz())} · {d.experiences.filter((e) => e.status === "done").length} חוויות</div>
-            </div>
-          </div>
-        ))}
-      </div>
-      {!dests.length && <div className="empty">{canEdit ? "כשתגיעי ליעד הראשון, לחצי על הכפתור 💜" : "עוד אין יעדים"}</div>}
+      {canEdit && <button className="btn gold block big-cta" onClick={() => setAdding(true)}>📍 הגעתי ליעד חדש</button>}
+
+      {ordered.length > 0 && (
+        <div className="timeline">
+          {ordered.map((d, i) => {
+            const done = d.experiences.filter((e) => e.status === "done").length;
+            const wish = d.experiences.filter((e) => e.status === "wish").length;
+            return (
+              <button key={d.id} className={`tl-item ${i === 0 ? "now" : ""}`} onClick={() => setSel(d)}>
+                <span className="tl-dot">{i === 0 ? "♥" : ordered.length - i}</span>
+                <div className="tl-card">
+                  <div className="row between">
+                    <b>{d.name}</b>
+                    {i === 0 && <span className="chip gold">{canEdit ? "את כאן עכשיו" : "היא כאן עכשיו"}</span>}
+                  </div>
+                  <div className="muted small">{d.country ? `${d.country} · ` : ""}{fmtDate(d.arrived_at, myTz())}</div>
+                  <div className="tl-meta">✨ {done} חוויות{wish ? ` · ☐ ${wish} ברשימה` : ""}</div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      )}
+      {!dests.length && (
+        <div className="card center stack">
+          <div style={{ fontSize: 40 }}>🗺️</div>
+          <b>{canEdit ? "המפה מחכה ליעד הראשון שלך" : "עוד אין יעדים"}</b>
+          {canEdit && <p className="muted small" style={{ margin: 0 }}>כשתגיעי לעיר חדשה, לחצי על "הגעתי ליעד חדש". המיקום נקבע לבד.</p>}
+        </div>
+      )}
       {adding && <AddDestination onClose={() => setAdding(false)} onAdded={(d) => { setAdding(false); load(); setSel(d); }} />}
       {sel && <DestinationSheet dest={sel} canEdit={canEdit} onClose={() => { setSel(null); load(); }} />}
     </div>
@@ -164,8 +194,11 @@ function DestinationSheet({ dest, canEdit, onClose }) {
   return (
     <Sheet onClose={onClose}>
       <div className="stack">
-        <h2>📍 {dest.name}</h2>
-        <div className="muted small">{dest.country} · הגעתי ב-{fmtDate(dest.arrived_at, myTz())}</div>
+        <div className="center">
+          <div style={{ fontSize: 34 }}>📍</div>
+          <h2 style={{ margin: 0 }}>{dest.name}</h2>
+          <div className="muted small">{dest.country ? `${dest.country} · ` : ""}{canEdit ? "הגעתי" : "הגיעה"} ב-{fmtDate(dest.arrived_at, myTz())}</div>
+        </div>
         <div className="seg">
           <button className={tab === "done" ? "on" : ""} onClick={() => setTab("done")}>מה חוויתי</button>
           <button className={tab === "wish" ? "on" : ""} onClick={() => setTab("wish")}>רוצה לעשות כאן</button>
@@ -174,15 +207,21 @@ function DestinationSheet({ dest, canEdit, onClose }) {
         {adding && <AddExperience destId={dest.id} status={tab} onDone={() => { setAdding(false); load(); }} />}
         <div className="list">
           {list.map((e) => (
-            <div key={e.id} className="card stack" style={{ padding: 12 }}>
-              <div className="row between">
-                <b>{e.status === "wish" ? "☐ " : ""}{e.title}</b>
-                {canEdit && e.status === "wish" && <button className="btn small soft" onClick={() => markDone(e)}>✓ עשיתי</button>}
+            e.status === "wish" ? (
+              <div key={e.id} className="wish-row">
+                <button className="wish-check" disabled={!canEdit} onClick={() => markDone(e)} aria-label="עשיתי" />
+                <span>{e.title}</span>
               </div>
-              {e.note && <p className="small" style={{ margin: 0 }}>{e.note}</p>}
-              {e.photo_path && <img src={mediaUrl(e.photo_path)} alt="" style={{ borderRadius: 12 }} />}
-              {e.done_at && e.status === "done" && <span className="muted small">{fmtDate(e.done_at, myTz())}</span>}
-            </div>
+            ) : (
+              <div key={e.id} className="exp-card">
+                {e.photo_path && <img src={mediaUrl(e.photo_path)} alt="" />}
+                <div className="exp-body">
+                  <b>✨ {e.title}</b>
+                  {e.note && <p>{e.note}</p>}
+                  {e.done_at && <span className="muted small">{fmtDate(e.done_at, myTz())}</span>}
+                </div>
+              </div>
+            )
           ))}
         </div>
         {!list.length && !adding && <div className="empty">{tab === "done" ? "עוד אין חוויות כאן" : "הרשימה ריקה"}</div>}
