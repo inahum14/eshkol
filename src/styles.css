@@ -237,9 +237,9 @@ body,.app{background:linear-gradient(180deg,#2A0A3C 0px,#4A1866 130px,#B98AB8 21
 
 /* clearer active tab */
 .tabbar button { border-radius: 14px; transition: background .2s, color .2s; }
-.tabbar button:not(.center-tab).on { background: rgba(240,201,106,.16); color: #F0C96A; }
-.tabbar button:not(.center-tab).on .ic { transform: translateY(-2px) scale(1.12); }
+.tabbar button:not(.center-tab).on { color: #F0C96A; }
+.tabbar button:not(.center-tab) .ic { width: 46px; height: 32px; display: grid; place-items: center; border-radius: 16px; }
+.tabbar button:not(.center-tab).on .ic { background: rgba(240,201,106,.2); transform: scale(1.06); }
 .tabbar button .ic { transition: transform .2s; }
-.tabbar button:not(.center-tab).on::after { content: ""; position: absolute; bottom: -3px; left: 50%; width: 18px; height: 3px; margin-left: -9px; border-radius: 2px; background: #F0C96A; }
 .tabbar button.center-tab:not(.on) { color: #BFA6D6; }
 .tabbar button.center-tab:not(.on) .ic { box-shadow: 0 8px 20px rgba(0,0,0,.4); filter: saturate(.75) brightness(.9); }
