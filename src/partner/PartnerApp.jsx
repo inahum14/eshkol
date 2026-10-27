@@ -157,7 +157,8 @@ function Home({ me, d, reload, onOpen, go, openSub }) {
 
 
       {latest ? (
-        <div className="card hero clickable hero-center" onClick={() => onOpen(latest)}>
+        <div className={`card hero clickable hero-center ${latest.opened_at ? "seen" : "unseen"}`} onClick={() => onOpen(latest)}>
+          {latest.opened_at && <span className="seen-badge">✓ נצפה</span>}
           <span className="chip gold">{latest.opened_at ? "האחרון ממני" : "חדש ממני ✨"}</span>
           <div className="hero-ic">{MEDIA_ICON[latest.media_type]}</div>
           <h2>{latest.title}</h2>
