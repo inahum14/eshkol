@@ -39,6 +39,23 @@ export default function SettingsAdmin() {
   return (
     <div className="stack" style={{ maxWidth: 680 }}>
       <div className="card stack">
+        <h3>💬 משפט מצחיק בדף הבית</h3>
+        <p className="muted small">מופיע אצלה מתחת לסרטון השבועי, כמו ציטוט במירכאות. השאר ריק כדי להסתיר.</p>
+        <textarea style={{ minHeight: 70 }} defaultValue={s.home_quote || ""} placeholder="משהו מצחיק שקרה לנו…"
+          onBlur={(e) => e.target.value.trim() !== (s.home_quote || "") && upd({ home_quote: e.target.value.trim() || null }, "המשפט עודכן ✓")} />
+      </div>
+
+      <div className="card stack">
+        <h3>🔥 ענב על רצף</h3>
+        <div className="row">
+          <span className="small">ענב במתנה כל</span>
+          <input type="number" min="0" style={{ width: 80 }} defaultValue={s.streak_bonus_every}
+            onBlur={(e) => upd({ streak_bonus_every: Math.max(0, parseInt(e.target.value || "0", 10)) })} />
+          <span className="small">ימים ברצף (0 = כבוי)</span>
+        </div>
+      </div>
+
+      <div className="card stack">
         <h3>✈️ שעון חזרה</h3>
         {!s.return_clock_enabled ? (
           <>

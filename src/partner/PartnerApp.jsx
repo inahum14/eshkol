@@ -77,6 +77,7 @@ export default function PartnerApp({ me }) {
       {sub && (
         <Sheet onClose={() => setSub(null)}>
           {sub === "request" && <RequestFromYou done={() => setSub(null)} />}
+          {sub === "streak" && <StreakInfo streak={d.streak} every={d.settings.streak_bonus_every} />}
           {sub === "grapes" && <GrapesInfo grapes={d.grapes} settings={d.settings} ask={() => setSub("grape")} />}
           {sub === "grape" && <GrapeRequest done={() => { setSub(null); load(); }} />}
           {sub === "weekly" && <WeeklyVideo weekly={d.weekly} done={() => { setSub(null); load(); }} />}
@@ -124,9 +125,9 @@ function Home({ me, d, reload, onOpen, go, openSub }) {
           <div className="muted">משהו קטן ממני, לכל הדרך</div>
         </div>
         <div className="pills">
-          <div className="coin-pill streak-pill" title="רצף ימים">
+          <button className="coin-pill" onClick={() => openSub("streak")} aria-label="רצף ימים">
             <span className="coin-ic">🔥</span><span className="coin-n">{d.streak.streak}</span>
-          </div>
+          </button>
           <button className="coin-pill" onClick={() => openSub("grapes")} aria-label="הענבים שלי">
             <span className="coin-ic">🍇</span><span className="coin-n">{d.grapes.length}</span>
           </button>
@@ -166,6 +167,12 @@ function Home({ me, d, reload, onOpen, go, openSub }) {
           <b>🎥 הסרטון השבועי שלך</b>
           <p className="small">היום אפשר לשלוח לי סרטון קצר, עד דקה.</p>
         </div>
+      )}
+
+      {d.settings.home_quote && (
+        <figure className="quote">
+          <blockquote>{d.settings.home_quote}</blockquote>
+        </figure>
       )}
 
       {unread.length > 1 && (
@@ -343,6 +350,31 @@ function GrapesInfo({ grapes, settings, ask }) {
       )}
       <p className="muted small center">ענב שלא משתמשים בו נשאר 72 שעות.</p>
       <button className="btn block" onClick={ask}>לבקש ענב נוסף</button>
+    </div>
+  );
+}
+
+function StreakInfo({ streak, every }) {
+  const n = streak.streak;
+  const toNext = every > 0 ? (n % every === 0 && n > 0 ? every : every - (n % every)) : 0;
+  return (
+    <div className="stack center">
+      <div style={{ fontSize: 52, lineHeight: 1 }}>🔥</div>
+      <h2 style={{ margin: 0 }}>{n ? `רצף של ${n} ${n === 1 ? "יום" : "ימים"}` : "עוד אין רצף"}</h2>
+      <p>זה הרצף שלך: כמה ימים ברציפות נכנסת ופתחת משהו ממני.</p>
+      <div className="card soft">
+        <b>ככל שהרצף ארוך יותר, מרוויחים יותר ענבים 🍇</b>
+        {every > 0 && <p className="small" style={{ margin: "6px 0 0" }}>כל {every} ימים ברצף, מחכה לך ענב במתנה.</p>}
+      </div>
+      {every > 0 && (
+        <div className="streak-track">
+          {Array.from({ length: every }).map((_, i) => (
+            <span key={i} className={i < (n % every || (n ? every : 0)) ? "on" : ""}>{i === every - 1 ? "🍇" : ""}</span>
+          ))}
+        </div>
+      )}
+      {every > 0 && <p className="muted small">{toNext === 1 ? "עוד יום אחד לענב הבא!" : `עוד ${toNext} ימים לענב הבא`}</p>}
+      <p className="muted small">{streak.today_done ? "היום כבר נספר ✓" : "כדי שהיום ייספר, מספיק לפתוח דבר אחד ממני."}</p>
     </div>
   );
 }

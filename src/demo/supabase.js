@@ -13,7 +13,7 @@ const db = {
     { id: "a1", role: "admin", display_name: "עידו", timezone: "Asia/Jerusalem" },
     { id: "p1", role: "partner", display_name: "עופרי", timezone: Intl.DateTimeFormat().resolvedOptions().timeZone, last_active_at: iso(-5 * 60e3), created_at: iso(-30 * 24 * H) },
   ],
-  settings: [{ id: 1, daily_grapes: 1, grape_ttl_hours: 72, quiet_start: "23:00:00", quiet_end: "08:00:00", active_override_minutes: 15, return_clock_enabled: true, return_date: null, weekly_video_open_dow: 5, weekly_video_grace_dow: 6 }],
+  settings: [{ id: 1, daily_grapes: 1, grape_ttl_hours: 72, quiet_start: "23:00:00", quiet_end: "08:00:00", active_override_minutes: 15, return_clock_enabled: true, return_date: null, weekly_video_open_dow: 5, weekly_video_grace_dow: 6, streak_bonus_every: 7, home_quote: "פעם אחת הזמנו פיצה בלי גבינה בטעות ואכלנו אותה בכל זאת" }],
   content_items: [
     { id: "i1", kind: "live", media_type: "note", title: "בוקר טוב מאורנית", body: "בוקר טוב יפה שלי ☀️\nהתעוררתי וחשבתי עלייך.\nתהני מהיום, ותספרי לי הכול בערב 💜", allow_reply: true, reply_types: ["text", "audio"], pre_open_message: null, created_at: iso(-2 * H) },
     { id: "i2", kind: "scheduled", media_type: "note", title: "שבוע ראשון בבואנוס איירס!", body: "עבר שבוע. אני כל כך גאה בך.", allow_reply: false, reply_types: [], unlock_at: iso(-20 * H), created_at: iso(-3 * 24 * H) },
