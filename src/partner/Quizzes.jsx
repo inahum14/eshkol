@@ -47,7 +47,7 @@ export default function Quizzes({ quizzes, reload }) {
 function QuizPlay({ quiz, onClose }) {
   const answered = !!quiz.answered_at;
   const [picked, setPicked] = useState(answered ? quiz.chosen_index : null);
-  const [result, setResult] = useState(answered ? { correct: quiz.is_correct, correct_index: quiz.correct_index } : null);
+  const [result, setResult] = useState(answered ? { correct: quiz.is_correct, correct_index: quiz.correct_index, explanation_item_id: quiz.explanation_item_id } : null);
   const [revealed, setRevealed] = useState(answered);
   const [explain, setExplain] = useState(null);
   const toast = useToast();
@@ -99,9 +99,9 @@ function QuizPlay({ quiz, onClose }) {
           <div className="stack">
             <div className={`card center ${result.correct ? "" : "soft"}`}>
               <h3>{result.correct ? "צדקת! 🎉" : "לא הפעם 💜"}</h3>
-              <p className="small">{result.correct ? "ענב בונוס נוסף לך" : "אבל יש לי הסבר בשבילך"}</p>
+              <p className="small">{result.correct ? "ענב בונוס נוסף לך" : result.explanation_item_id ? "אבל יש לי הסבר בשבילך" : "בפעם הבאה 💜"}</p>
             </div>
-            {!explain && <button className="btn block" onClick={loadExplain}>להסבר ⬇️</button>}
+            {!explain && result.explanation_item_id && <button className="btn block" onClick={loadExplain}>להסבר ⬇️</button>}
             {explain && <MediaView mediaType={explain.media_type} mediaPath={explain.media_path} body={explain.body} autoPlay />}
           </div>
         )}

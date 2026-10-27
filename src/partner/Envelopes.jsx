@@ -1,5 +1,5 @@
+import { useState } from "react";
 import { MEDIA_ICON } from "../ui";
-import { timeLeft } from "../lib/time";
 
 export const ENVELOPE_CATEGORIES = [
   { id: "miss", label: "כשאת מתגעגעת", e: "🫂" },
@@ -14,40 +14,51 @@ export const catOf = (id) => ENVELOPE_CATEGORIES.find((c) => c.id === id) || ENV
 
 export default function Envelopes({ d, onOpen, openSub }) {
   const envs = d.feed.filter((i) => i.kind === "envelope");
-  const groups = ENVELOPE_CATEGORIES.map((c) => ({ ...c, items: envs.filter((i) => (i.envelope_category || "other") === c.id) }))
-    .filter((g) => g.items.length);
+  const cats = ENVELOPE_CATEGORIES.filter((c) => envs.some((i) => (i.envelope_category || "other") === c.id));
+  const [cat, setCat] = useState("all");
+  const shown = envs
+    .filter((i) => cat === "all" || (i.envelope_category || "other") === cat)
+    .sort((a, b) => (a.opened_at ? 1 : 0) - (b.opened_at ? 1 : 0));
+  const closed = envs.filter((i) => !i.opened_at).length;
 
   return (
-    <div className="stack">
-      <div className="topbar"><div className="title">לפתוח כש…</div></div>
-      <div className="card soft row between">
-        <div>
-          <div className="grapes-row">
-            {d.grapes.length ? d.grapes.map((g) => <span key={g.id} className="grape" />) : <span className="grape empty" />}
-          </div>
-          <div className="small" style={{ marginTop: 6 }}>
-            {d.grapes.length ? `${d.grapes.length} ענבים · ${timeLeft(d.grapes[0].expires_at)} לראשון` : "נגמרו הענבים להיום"}
-          </div>
-        </div>
-        <button className="btn small soft" onClick={() => openSub("grape")}>לבקש ענב</button>
+    <div className="stack env-page">
+      <div className="env-head">
+        <h1>לפתוח כש…</h1>
+        <p>{closed ? `${closed} מעטפות סגורות מחכות לך` : "פתחת את כל המעטפות 💜"}</p>
       </div>
-      <p className="muted small">כל מעטפה נפתחת עם ענב אחד. ענב נשאר בתוקף 72 שעות.</p>
 
-      {!groups.length && <div className="empty">המעטפות בדרך 💌</div>}
-      {groups.map((g) => (
-        <div key={g.id} className="stack">
-          <h3>{g.e} {g.label}</h3>
-          <div className="env-grid">
-            {g.items.map((i) => (
-              <div key={i.id} className={`env ${i.opened_at ? "opened" : ""}`} onClick={() => onOpen(i)}>
-                <div className="e">{i.opened_at ? MEDIA_ICON[i.media_type] : "✉️"}</div>
-                <div className="t">{i.title}</div>
-                <div className="muted small">{i.opened_at ? "נפתחה" : "🍇 ענב אחד"}</div>
-              </div>
-            ))}
-          </div>
+      <button className="env-grapes" onClick={() => openSub("grapes")}>
+        <span className="g-ic">🍇</span>
+        <span><b>{d.grapes.length}</b> {d.grapes.length === 1 ? "ענב" : "ענבים"} · כל מעטפה נפתחת עם ענב אחד</span>
+      </button>
+
+      {cats.length > 1 && (
+        <div className="env-cats">
+          <button className={cat === "all" ? "on" : ""} onClick={() => setCat("all")}>הכול</button>
+          {cats.map((c) => (
+            <button key={c.id} className={cat === c.id ? "on" : ""} onClick={() => setCat(c.id)}>{c.e} {c.label}</button>
+          ))}
         </div>
-      ))}
+      )}
+
+      {!envs.length && <div className="empty">המעטפות בדרך 💌</div>}
+
+      <div className="env-grid2">
+        {shown.map((i) => {
+          const c = catOf(i.envelope_category);
+          return (
+            <button key={i.id} className={`envelope ${i.opened_at ? "open" : ""}`} onClick={() => onOpen(i)}>
+              <div className="env-art">
+                <div className="flap" />
+                <div className="seal">{i.opened_at ? MEDIA_ICON[i.media_type] : "♥"}</div>
+              </div>
+              <div className="env-title">{i.title}</div>
+              <div className="env-sub">{i.opened_at ? "נפתחה · לראות שוב" : `${c.e} ${c.label}`}</div>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }

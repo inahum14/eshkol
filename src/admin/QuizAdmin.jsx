@@ -76,29 +76,33 @@ function NewQuiz({ tz, defaultUnlock, done }) {
 
   const filled = options.map((o, i) => ({ o: o.trim(), i })).filter((x) => x.o);
   const expBlob = expType === "audio" ? audio : file;
-  const valid = question.trim() && filled.length >= 2 && options[correct]?.trim() && (expType === "note" ? note.trim() : expBlob);
+  const valid = question.trim() && filled.length >= 2 && options[correct]?.trim() && (expType === "none" || (expType === "note" ? note.trim() : expBlob));
 
   const save = async () => {
     setErr("");
     try {
       let media = null;
-      if (expType !== "note") {
+      if (expType !== "note" && expType !== "none") {
         let up = expBlob;
         if (expType === "video" && up.size > 25 * 1024 * 1024) { setPhase("מכווץ…"); up = await compressVideo(up, setProg); }
         setPhase("מעלה…"); setProg(0);
         media = await uploadMedia(up, setProg);
       }
       setPhase("שומר…");
-      const { data: exp, error: e1 } = await supabase.from("content_items").insert({
-        kind: "quiz_explanation", media_type: expType, title: "הסבר: " + question.trim().slice(0, 60),
-        body: note.trim() || null, media_path: media, notify: false,
-      }).select().single();
-      if (e1) throw e1;
+      let exp = null;
+      if (expType !== "none") {
+        const r = await supabase.from("content_items").insert({
+          kind: "quiz_explanation", media_type: expType, title: "הסבר: " + question.trim().slice(0, 60),
+          body: note.trim() || null, media_path: media, notify: false,
+        }).select().single();
+        if (r.error) throw r.error;
+        exp = r.data;
+      }
       const compact = filled.map((x) => x.o);
       const newCorrect = filled.findIndex((x) => x.i === correct);
       const { error: e2 } = await supabase.from("quizzes").insert({
         question: question.trim(), options: compact, correct_index: newCorrect,
-        explanation_item_id: exp.id, unlock_at: wallToDate(unlock, tz).toISOString(),
+        explanation_item_id: exp?.id ?? null, unlock_at: wallToDate(unlock, tz).toISOString(),
       });
       if (e2) throw e2;
       done();
@@ -120,11 +124,12 @@ function NewQuiz({ tz, defaultUnlock, done }) {
       <label className="field">מתי נפתחת (שעה אצלה)
         <input type="datetime-local" value={unlock} onChange={(e) => setUnlock(e.target.value)} />
       </label>
-      <div className="field">ההסבר שנפתח אחרי שהיא עונה</div>
+      <div className="field">הסבר שנפתח אחרי שהיא עונה (לא חובה)</div>
       <div className="seg">
         <button className={expType === "video" ? "on" : ""} onClick={() => setExpType("video")}>🎬 סרטון</button>
         <button className={expType === "audio" ? "on" : ""} onClick={() => setExpType("audio")}>🎙️ הקלטה</button>
         <button className={expType === "note" ? "on" : ""} onClick={() => setExpType("note")}>💌 טקסט</button>
+        <button className={expType === "none" ? "on" : ""} onClick={() => setExpType("none")}>בלי הסבר</button>
       </div>
       {expType === "video" && (
         <label className="btn ghost">{file ? `✓ ${file.name || "נבחר"}` : "🎬 לבחור / לצלם סרטון"}

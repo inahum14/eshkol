@@ -76,10 +76,30 @@ export default function ContentList() {
               {sel.allow_reply && <span className="chip">תגובה: {sel.reply_types.map((t) => (t === "text" ? "טקסט" : "קול")).join(", ")}</span>}
             </div>
             <MediaView mediaType={sel.media_type} mediaPath={sel.media_path} body={sel.body} />
+            <EditItem item={sel} saved={(u) => { setSel({ ...sel, ...u }); load(); toast("נשמר ✓"); }} />
             <button className="btn danger small" onClick={() => del(sel)}>מחיקה</button>
           </div>
         </Sheet>
       )}
+    </div>
+  );
+}
+
+function EditItem({ item, saved }) {
+  const [open, setOpen] = useState(false);
+  const [title, setTitle] = useState(item.title);
+  const [body, setBody] = useState(item.body || "");
+  if (!open) return <button className="btn ghost small" onClick={() => setOpen(true)}>✏️ עריכת כותרת וטקסט</button>;
+  const save = async () => {
+    const u = { title: title.trim(), body: body.trim() || null };
+    const { error } = await supabase.from("content_items").update(u).eq("id", item.id);
+    if (!error) { setOpen(false); saved(u); }
+  };
+  return (
+    <div className="card stack">
+      <label className="field">כותרת<input type="text" value={title} onChange={(e) => setTitle(e.target.value)} /></label>
+      <label className="field">{item.media_type === "note" ? "הפתק" : "טקסט נלווה"}<textarea value={body} onChange={(e) => setBody(e.target.value)} /></label>
+      <div className="row"><button className="btn small" disabled={!title.trim()} onClick={save}>שמירה</button><button className="btn small ghost" onClick={() => setOpen(false)}>ביטול</button></div>
     </div>
   );
 }
