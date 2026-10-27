@@ -123,10 +123,17 @@ function Home({ me, d, reload, onOpen, go, openSub }) {
           <div className="title">{greeting(myTz())}, {me.display_name}</div>
           <div className="muted">משהו קטן ממני, לכל הדרך</div>
         </div>
-        <button className="coin-pill" onClick={() => openSub("grapes")} aria-label="הענבים שלי">
-          <span className="coin-ic">🍇</span><span className="coin-n">{d.grapes.length}</span>
-        </button>
+        <div className="pills">
+          <div className="coin-pill streak-pill" title="רצף ימים">
+            <span className="coin-ic">🔥</span><span className="coin-n">{d.streak.streak}</span>
+          </div>
+          <button className="coin-pill" onClick={() => openSub("grapes")} aria-label="הענבים שלי">
+            <span className="coin-ic">🍇</span><span className="coin-n">{d.grapes.length}</span>
+          </button>
+        </div>
       </div>
+
+      <TwoClocks himTz={d.himTz} />
 
 
       {latest ? (
@@ -144,14 +151,6 @@ function Home({ me, d, reload, onOpen, go, openSub }) {
           <button className="btn gold" onClick={() => go("env")}>למעטפות</button>
         </div>
       )}
-
-      <div className="card row between streak-card">
-        <div>
-          <div className="muted small">רצף ימים</div>
-          <div className="small">{d.streak.today_done ? "היום כבר נספר ✓" : "עוד לא היום, פתחי משהו קטן"}</div>
-        </div>
-        <div className="streak">🔥 {d.streak.streak}</div>
-      </div>
 
       {quiz && (
         <div className="card soft clickable quiz-teaser" onClick={() => go("quiz")}>
@@ -183,7 +182,6 @@ function Home({ me, d, reload, onOpen, go, openSub }) {
         </div>
       )}
 
-      <TwoClocks himTz={d.himTz} />
     </div>
   );
 }
