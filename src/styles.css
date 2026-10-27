@@ -205,3 +205,19 @@ b, strong { font-weight: 400; color: var(--grape-deep); }
 .hero-center h2 { margin: 0; font-size: 26px; }
 .hero-center .btn { min-width: 160px; }
 .hero-ic { font-size: 38px; line-height: 1; }
+
+/* ===== theme D: purple sunset ===== */
+:root{--cream:#F3E9DC;--paper:#FFFBF5;--line:#E6D6C2;--grape:#3E1157;--grape-mid:#7B2E8E;--lav-soft:#EFE2F3;--lav:#C9A6D9;--gold:#D2A23A;--gold-soft:#F6E6C2;--grape-deep:#2A0A3C;--muted:#8A6E86}
+body,.app{background:linear-gradient(180deg,#2A0A3C 0px,#4A1866 230px,#B98AB8 330px,#F3E9DC 430px,#EFE2D2 100%) no-repeat,#EFE2D2}
+.topbar .title{color:#FFF3DD}.topbar .muted{color:#D9C2EA}
+.card{border:0;box-shadow:0 8px 24px rgba(62,17,87,.12);border-radius:22px}
+.card.hero{background:linear-gradient(150deg,#6A2491 0%,#3E1157 60%,#250836 100%);box-shadow:0 20px 44px rgba(20,4,30,.45);border:1px solid rgba(226,182,83,.35)}
+.card.soft{background:linear-gradient(150deg,#F4E8F7,#EADAF1)}.card.gold{background:linear-gradient(150deg,#FBEFD3,#F3DFB1)}
+.btn.gold{background:linear-gradient(180deg,#F0C96A,#C8902A);color:#2A0A3C;box-shadow:0 6px 16px rgba(200,144,42,.4)}
+.chip.gold{background:#E2B653;color:#2A0A3C}
+.tabbar{background:rgba(42,10,60,.96);border-top:0;box-shadow:0 -8px 24px rgba(42,10,60,.25)}
+.tabbar button{color:#BFA6D6}.tabbar button.on{color:#F0C96A}
+.tabbar button.center-tab .ic{background:linear-gradient(145deg,#8A45BD,#3E1157);border-color:#2A0A3C;box-shadow:0 0 0 2px #D2A23A,0 8px 20px rgba(0,0,0,.4)}
+.tabbar button.center-tab{color:#F0C96A}
+.streak{color:#C8902A}
+.card.hero,.card.hero h2{color:#FFF6E3}
