@@ -4,6 +4,7 @@ export const SUPABASE_KEY = "";
 export const VAPID_PUBLIC = "";
 export const usernameToEmail = (u) => u;
 
+const ADMIN = typeof location !== "undefined" && location.hash.includes("admin");
 const now = Date.now();
 const iso = (ms) => new Date(now + ms).toISOString();
 const H = 3600e3;
@@ -11,7 +12,7 @@ const H = 3600e3;
 const db = {
   profiles: [
     { id: "a1", role: "admin", display_name: "עידו", timezone: "Asia/Jerusalem" },
-    { id: "p1", role: "partner", display_name: "עופרי", timezone: Intl.DateTimeFormat().resolvedOptions().timeZone, last_active_at: iso(-5 * 60e3), created_at: iso(-30 * 24 * H) },
+    { id: "p1", role: "partner", display_name: "עופרי", timezone: ADMIN ? "America/Argentina/Buenos_Aires" : Intl.DateTimeFormat().resolvedOptions().timeZone, last_active_at: iso(-5 * 60e3), created_at: iso(-30 * 24 * H) },
   ],
   settings: [{ id: 1, daily_grapes: 1, grape_ttl_hours: 72, quiet_start: "23:00:00", quiet_end: "08:00:00", active_override_minutes: 15, return_clock_enabled: true, return_date: null, weekly_video_open_dow: 5, weekly_video_grace_dow: 6, streak_bonus_every: 7, home_quote: "פעם אחת הזמנו פיצה בלי גבינה בטעות ואכלנו אותה בכל זאת" }],
   content_items: [
@@ -48,7 +49,13 @@ const db = {
     { id: 4, country: "ברזיל", country_order: 2, label: "משטרה", value: "190", kind: "phone", item_order: 1 },
     { id: 5, country: "פרו", country_order: 3, label: "משטרה", value: "105", kind: "phone", item_order: 1 },
   ],
-  content_requests: [], grape_requests: [], vent_messages: [], weekly_videos: [], replies: [], push_subscriptions: [],
+  content_requests: [{ id: "r1", request_text: "תשיר לי את השיר מהחתונה של דנה 🎤", status: "pending", created_at: iso(-3 * H) }],
+  grape_requests: [{ id: "gr1", reason: "היה לי יום ארוך באוטובוס 🥲", status: "pending", created_at: iso(-50 * 60e3) }],
+  vent_messages: [
+    { id: "v1", body: "איבדתי את הכרטיס אשראי בתחנה ואני קצת בלחץ…", urgent: true, created_at: iso(-12 * 60e3) },
+    { id: "v2", body: "סתם מתגעגעת היום, הכול בסדר 💜", urgent: false, created_at: iso(-26 * H) },
+  ],
+  weekly_videos: [], replies: [{ id: "rp1", item_id: "i2", reply_type: "text", text_body: "בכיתי קצת. תודה שאתה כזה 💜", created_at: iso(-18 * H), content_items: { title: "שבוע ראשון בבואנוס איירס!" } }], push_subscriptions: [],
 };
 
 let uid = 100;
@@ -94,7 +101,7 @@ class Q {
   select() { return this; }
   eq(k, v) { this.filters.push((r) => r[k] === v); return this; }
   neq(k, v) { this.filters.push((r) => r[k] !== v); return this; }
-  is() { return this; } lte() { return this; } in() { return this; }
+  is() { return this; } lte() { return this; } gt() { return this; } in() { return this; }
   order() { return this; } limit() { return this; }
   insert(p) { this.op = "insert"; this.payload = p; return this; }
   update(p) { this.op = "update"; this.payload = p; return this; }
@@ -114,12 +121,14 @@ class Q {
     if (this.op === "update") { hit.forEach((r) => Object.assign(r, this.payload)); return { data: hit, error: null }; }
     if (this.op === "delete") { db[this.t] = rows.filter((r) => !hit.includes(r)); return { data: null, error: null }; }
     let data = hit;
+    if (this.t === "content_views") data = hit.map((v) => ({ ...v, content_items: db.content_items.find((i) => i.id === v.item_id) }));
+    if (this.t === "content_items") data = hit.map((i) => ({ ...i, content_views: db.content_views.filter((v) => v.item_id === i.id), replies: db.replies.filter((r) => r.item_id === i.id) }));
     if (this.t === "destinations") data = hit.map((d) => ({ ...d, experiences: db.experiences.filter((e) => e.destination_id === d.id) }));
     return { data: this._one ? data[0] ?? null : data, error: null };
   }
 }
 
-const session = { access_token: "demo", user: { id: "p1" } };
+const session = { access_token: "demo", user: { id: ADMIN ? "a1" : "p1" } };
 export const supabase = {
   auth: {
     getSession: async () => ({ data: { session } }),

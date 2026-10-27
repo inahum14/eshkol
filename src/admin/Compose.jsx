@@ -90,22 +90,39 @@ export default function Compose({ prefill, partner, done }) {
   const toggleType = (t) => setReplyTypes((rs) => rs.includes(t) ? rs.filter((x) => x !== t) : [...rs, t]);
 
   return (
-    <div className="stack" style={{ maxWidth: 620 }}>
-      <h2>{isRequestAnswer ? "תשובה לבקשה שלה" : prefill?.ventId ? "תשובה לפריקה" : "תוכן חדש"}</h2>
+    <div className="stack">
       {isRequestAnswer && <div className="card soft small">היא ביקשה: "{prefill.title}"</div>}
 
+      <div className="card stack">
+      <div className="step">1 · איך זה מגיע אליה</div>
       {!isRequestAnswer && (
         <div className="seg">
           {KINDS.map((k) => <button key={k.id} className={kind === k.id ? "on" : ""} onClick={() => setKind(k.id)}>{k.label}</button>)}
         </div>
       )}
-      <p className="muted small">
+      <p className="muted small" style={{ margin: 0 }}>
         {kind === "live" && "יגיע אליה עכשיו עם התראה (בשעות השקטות שלה, ההתראה תחכה לבוקר)."}
         {kind === "scheduled" && "ייפתח אצלה בזמן שתבחר, עם התראה."}
         {kind === "envelope" && "נכנס למאגר המעטפות. היא פותחת מתי שתרצה, עם ענב."}
         {kind === "request_answer" && "יגיע אליה עכשיו עם התראה."}
       </p>
+      {kind === "envelope" && (
+        <label className="field">לפתוח כש…
+          <select value={category} onChange={(e) => setCategory(e.target.value)}>
+            {ENVELOPE_CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.e} {c.label}</option>)}
+          </select>
+        </label>
+      )}
+      {kind === "scheduled" && (
+        <label className="field">מתי ייפתח, לפי השעה <b>אצלה</b>
+          <input type="datetime-local" value={unlock} onChange={(e) => setUnlock(e.target.value)} />
+          {unlock && <span className="small">= אצלך: {fmtDateTime(wallToDate(unlock, tz).toISOString(), Intl.DateTimeFormat().resolvedOptions().timeZone)}</span>}
+        </label>
+      )}
+      </div>
 
+      <div className="card stack">
+      <div className="step">2 · מה שולחים</div>
       <div className="chips">
         {TYPES.map((t) => <span key={t.id} className={`chip select ${mediaType === t.id ? "on" : ""}`} onClick={() => setMediaType(t.id)}>{t.label}</span>)}
       </div>
@@ -132,22 +149,10 @@ export default function Compose({ prefill, partner, done }) {
         <textarea value={body} onChange={(e) => setBody(e.target.value)} />
       </label>
 
-      {kind === "envelope" && (
-        <label className="field">לפתוח כש…
-          <select value={category} onChange={(e) => setCategory(e.target.value)}>
-            {ENVELOPE_CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.e} {c.label}</option>)}
-          </select>
-        </label>
-      )}
-
-      {kind === "scheduled" && (
-        <label className="field">מתי ייפתח, לפי השעה <b>אצלה</b>
-          <input type="datetime-local" value={unlock} onChange={(e) => setUnlock(e.target.value)} />
-          {unlock && <span className="small">= אצלך: {fmtDateTime(wallToDate(unlock, tz).toISOString(), Intl.DateTimeFormat().resolvedOptions().timeZone)}</span>}
-        </label>
-      )}
+      </div>
 
       <div className="card stack">
+        <div className="step">3 · תוספות</div>
         <label className="check"><input type="checkbox" checked={preOn} onChange={(e) => setPreOn(e.target.checked)} /> הודעה לפני פתיחה</label>
         {preOn && (
           <>

@@ -37,7 +37,7 @@ export default function SettingsAdmin() {
   };
 
   return (
-    <div className="stack" style={{ maxWidth: 680 }}>
+    <div className="stack">
       <div className="card stack">
         <h3>💬 משפט מצחיק בדף הבית</h3>
         <p className="muted small">מופיע אצלה מתחת לסרטון השבועי, כמו ציטוט במירכאות. השאר ריק כדי להסתיר.</p>

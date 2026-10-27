@@ -331,3 +331,30 @@ body,.app{background:linear-gradient(180deg,#2A0A3C 0px,#4A1866 130px,#B98AB8 21
 .map { position: relative; z-index: 0; isolation: isolate; }
 .overlay { z-index: 1200 !important; }
 .toast { z-index: 1300; }
+
+/* ===== admin ===== */
+.app.admin { max-width: 640px; }
+.page-head { text-align: center; position: relative; margin: 6px 0 14px; }
+.page-head h1 { color: #FFF3DD; font-size: 30px; margin: 0; }
+.page-head .back { position: absolute; right: 0; top: 6px; background: rgba(255,255,255,.12); border: 1px solid rgba(240,201,106,.4); color: #F0C96A; border-radius: 999px; padding: 4px 12px; font-size: 14px; cursor: pointer; }
+.tabbar .plus { font-size: 34px; color: #F0C96A; line-height: 1; margin-top: -2px; }
+.sec { margin: 8px 4px -2px; font-size: 18px; }
+.vent-body { white-space: pre-wrap; margin: 0; font-size: 16px; color: var(--grape-deep); }
+.urgent-card { border: 2px solid var(--gold) !important; background: linear-gradient(150deg, #FFF6E0, #FBE7B8) !important; box-shadow: 0 10px 28px rgba(201,146,43,.35) !important; }
+.urgent-card b { color: var(--grape); font-size: 17px; }
+.stock { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.stock-tile { border: 0; background: var(--paper); border-radius: 18px; padding: 12px 6px; display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer;
+  box-shadow: 0 8px 22px rgba(62,17,87,.12); color: var(--grape-deep); }
+.stock-tile .st-ic { font-size: 20px; }
+.stock-tile b { font-family: var(--display); font-size: 28px; color: var(--grape); line-height: 1.1; }
+.stock-tile span { font-size: 12px; color: var(--muted); }
+.stock-tile em { font-style: normal; font-size: 11px; color: #8A5A0E; background: var(--gold-soft); border-radius: 999px; padding: 1px 8px; margin-top: 3px; }
+.stock-tile.low { box-shadow: 0 0 0 2px var(--gold), 0 8px 22px rgba(62,17,87,.12); }
+.weekly-row { display: flex; gap: 14px; overflow-x: auto; padding: 4px 2px 8px; scrollbar-width: none; }
+.weekly-row::-webkit-scrollbar { display: none; }
+.activity { padding: 6px 14px; }
+.act-row { display: flex; justify-content: space-between; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 15px; }
+.act-row:last-child { border-bottom: 0; }
+.calm { font-family: var(--display); font-size: 18px; color: var(--grape); }
+
+.step { font-family: var(--display); color: var(--grape); font-size: 15px; }

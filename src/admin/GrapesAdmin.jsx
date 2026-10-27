@@ -46,7 +46,7 @@ export default function GrapesAdmin({ partner, greqs, reload }) {
   const available = grapes.filter((g) => !g.used_at && new Date(g.expires_at) > new Date());
 
   return (
-    <div className="stack" style={{ maxWidth: 680 }}>
+    <div className="stack">
       <div className="grid2">
         <div className="card"><div className="muted small">ענבים זמינים אצלה עכשיו</div><b style={{ fontSize: 24 }}>{available.length} 🍇</b></div>
         <div className="card stack">
