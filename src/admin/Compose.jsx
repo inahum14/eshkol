@@ -1,11 +1,17 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { uploadMedia, compressVideo, compressImage } from "../lib/media";
 import { wallToDate, dateToWall, fmtDateTime } from "../lib/time";
-import { AudioRecorder, Progress, useToast } from "../ui";
-import { ENVELOPE_CATEGORIES } from "../partner/Envelopes";
+import { AudioRecorder, Progress, useToast, Sheet, MEDIA_ICON } from "../ui";
+import { ENVELOPE_CATEGORIES, catOf } from "../partner/Envelopes";
 
 export const PRE_OPEN_PRESETS = ["כדאי לראות לבד 💜", "שימי אוזניות 🎧", "חפשי מקום שקט", "אולי תצטרכי טישו 🥲", "רק כשאת במצב טוב ☀️"];
+
+export const NOTIF_SUGGESTIONS = {
+  live: ["הזמנה ממני 💌", "חשבתי עלייך עכשיו 💜", "יש לך משהו ממני ✨", "רגע קטן בשבילך 🫶"],
+  scheduled: ["הפתעה חדשה ממני 🍇", "נפתח לך משהו מיוחד ✨", "היום מחכה לך הפתעה 💌"],
+  request_answer: ["מה שביקשת ממני 💜", "הבקשה שלך כאן 🎁"],
+};
 
 const KINDS = [
   { id: "live", label: "לשלוח עכשיו" },
@@ -37,6 +43,10 @@ export default function Compose({ prefill, partner, done }) {
   const [pre, setPre] = useState(PRE_OPEN_PRESETS[0]);
   const [replyOn, setReplyOn] = useState(false);
   const [replyTypes, setReplyTypes] = useState(["text", "audio"]);
+  const [notif, setNotif] = useState(NOTIF_SUGGESTIONS[prefill?.kind || "live"]?.[0] || "");
+  const [notifEdited, setNotifEdited] = useState(false);
+  const [preview, setPreview] = useState(false);
+  useEffect(() => { if (!notifEdited) setNotif(NOTIF_SUGGESTIONS[kind]?.[0] || ""); }, [kind, notifEdited]);
   const [phase, setPhase] = useState(null);
   const [prog, setProg] = useState(0);
   const [err, setErr] = useState("");
@@ -70,6 +80,7 @@ export default function Compose({ prefill, partner, done }) {
         unlock_at: unlockAt,
         pre_open_message: preOn ? pre.trim() || null : null,
         allow_reply: replyOn, reply_types: replyOn ? replyTypes : [],
+        notif_title: kind === "envelope" ? null : notif.trim() || null,
       }).select().single();
       if (error) throw error;
       if (prefill?.requestId) {
@@ -118,6 +129,16 @@ export default function Compose({ prefill, partner, done }) {
           <input type="datetime-local" value={unlock} onChange={(e) => setUnlock(e.target.value)} />
           {unlock && <span className="small">= אצלך: {fmtDateTime(wallToDate(unlock, tz).toISOString(), Intl.DateTimeFormat().resolvedOptions().timeZone)}</span>}
         </label>
+      )}
+      {kind !== "envelope" && (
+        <div className="field">נוסח ההתראה שהיא תקבל
+          <input type="text" value={notif} onChange={(e) => { setNotif(e.target.value); setNotifEdited(true); }} />
+          <div className="chips">
+            {(NOTIF_SUGGESTIONS[kind] || []).map((n) => (
+              <span key={n} className={`chip select ${notif === n ? "on" : ""}`} onClick={() => { setNotif(n); setNotifEdited(true); }}>{n}</span>
+            ))}
+          </div>
+        </div>
       )}
       </div>
 
@@ -172,9 +193,76 @@ export default function Compose({ prefill, partner, done }) {
 
       {phase && <div className="stack"><span className="small">{phase}</span><Progress value={prog} /></div>}
       {err && <p className="err">{err}</p>}
+      <button className="btn ghost block" disabled={!title.trim()} onClick={() => setPreview(true)}>👀 לראות כמו עופרי</button>
+      {preview && (
+        <AsHer onClose={() => setPreview(false)} kind={kind} mediaType={mediaType} title={title} body={body} blob={blob}
+          pre={preOn ? pre : null} notif={kind === "envelope" ? null : notif} category={category} reply={replyOn ? replyTypes : null} />
+      )}
       <button className="btn block" disabled={!valid || !!phase || (replyOn && !replyTypes.length)} onClick={submit}>
         {kind === "envelope" ? "להוסיף מעטפה" : kind === "scheduled" ? "לתזמן" : "לשלוח אליה"}
       </button>
     </div>
+  );
+}
+
+/** Shows exactly what she'll see: the notification, the card in her app, and the opened content. */
+function AsHer({ onClose, kind, mediaType, title, body, blob, pre, notif, category, reply }) {
+  const url = useMemo(() => (blob ? URL.createObjectURL(blob) : null), [blob]);
+  useEffect(() => () => url && URL.revokeObjectURL(url), [url]);
+  const c = catOf(category);
+  return (
+    <Sheet onClose={onClose}>
+      <div className="stack as-her">
+        <h2 className="center" style={{ margin: 0 }}>ככה זה ייראה אצלה</h2>
+
+        {notif && (
+          <>
+            <div className="ah-label">🔔 ההתראה</div>
+            <div className="ah-notif">
+              <img src="/icons/icon-192.png" alt="" />
+              <div><b>{notif}</b><div>{title}</div></div>
+              <span>{kind === "scheduled" ? "בזמן שקבעת" : "עכשיו"}</span>
+            </div>
+          </>
+        )}
+
+        <div className="ah-label">📱 באפליקציה שלה</div>
+        {kind === "envelope" ? (
+          <div className="ah-env">
+            <button className="envelope" type="button">
+              <div className="env-art"><div className="flap" /><div className="seal">♥</div></div>
+              <div className="env-title">{title}</div>
+              <div className="env-sub">{c.e} {c.label}</div>
+            </button>
+          </div>
+        ) : (
+          <div className="card hero hero-center">
+            <span className="chip gold">חדש ממני ✨</span>
+            <div className="hero-ic">{MEDIA_ICON[mediaType]}</div>
+            <h2>{title}</h2>
+            <span className="btn gold">לפתוח</span>
+          </div>
+        )}
+
+        {pre && (
+          <>
+            <div className="ah-label">💜 לפני שנפתח</div>
+            <div className="card center"><h3 style={{ margin: 0 }}>{pre}</h3><span className="btn small" style={{ marginTop: 8 }}>אני מוכנה</span></div>
+          </>
+        )}
+
+        <div className="ah-label">✨ כשהיא פותחת</div>
+        <div className="card stack">
+          <h3 style={{ margin: 0 }}>{title}</h3>
+          {mediaType === "video" && url && <video src={url} controls playsInline style={{ width: "100%", borderRadius: 14 }} />}
+          {mediaType === "audio" && url && <audio src={url} controls style={{ width: "100%" }} />}
+          {mediaType === "image" && url && <img src={url} alt="" style={{ borderRadius: 14 }} />}
+          {mediaType !== "note" && !url && <div className="muted small center">עוד לא בחרת קובץ</div>}
+          {body && <div className="note-paper">{body}</div>}
+          {reply && <div className="muted small">מתחת: אפשרות להגיב ב{reply.map((r) => (r === "text" ? "טקסט" : "הקלטה")).join(" או ")}</div>}
+        </div>
+        <button className="btn block" onClick={onClose}>חזרה לעריכה</button>
+      </div>
+    </Sheet>
   );
 }

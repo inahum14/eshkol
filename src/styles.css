@@ -358,3 +358,11 @@ body,.app{background:linear-gradient(180deg,#2A0A3C 0px,#4A1866 130px,#B98AB8 21
 .calm { font-family: var(--display); font-size: 18px; color: var(--grape); }
 
 .step { font-family: var(--display); color: var(--grape); font-size: 15px; }
+
+.as-her .ah-label { font-size: 13px; color: var(--muted); margin-bottom: -4px; }
+.ah-notif { display: flex; gap: 10px; align-items: flex-start; background: linear-gradient(170deg,#3b2a5e,#1b2547); color: #fff; border-radius: 18px; padding: 12px; }
+.ah-notif img { width: 34px; height: 34px; border-radius: 8px; }
+.ah-notif > div { flex: 1; font-size: 14px; } .ah-notif b { display: block; font-size: 15px; }
+.ah-notif span { font-size: 11px; opacity: .6; }
+.ah-env { display: flex; justify-content: center; } .ah-env .envelope { width: 60%; }
+.ah-notif b { color: #fff; }
