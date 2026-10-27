@@ -2,7 +2,7 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 import webpush from "npm:web-push@3.6.7";
 
 const DEFAULTS: Record<string, string[]> = {
-  streak: ["האשכול שלך מחכה לך 🍇", "לא שכחת אותי, נכון? 💜", "ענב קטן ביום שומר על הרצף 🔥"],
+  streak: ["מחכה לך משהו קטן ממני 💜", "לא שכחת אותי, נכון? 💜", "ענב קטן ביום שומר על הרצף 🔥"],
   weekly_video: ["הגיע יום שישי, מחכה לסרטון ממך 💜"],
   weekly_video_grace: ["עוד אפשר לשלוח את הסרטון השבועי, עד סוף היום 🎥"],
 };
