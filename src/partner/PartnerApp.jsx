@@ -33,7 +33,8 @@ export default function PartnerApp({ me }) {
       rpc("partner_quizzes"),
       rpc("weekly_video_window"),
     ]);
-    setD({ feed, grapes, streak, settings, quizzes, weekly });
+    const { data: him } = await supabase.from("profiles").select("timezone").eq("role", "admin").maybeSingle();
+    setD({ feed, grapes, streak, settings, quizzes, weekly, himTz: him?.timezone || "Asia/Jerusalem" });
   }, []);
 
   useEffect(() => {
@@ -112,7 +113,6 @@ function Home({ me, d, reload, onOpen, go, openSub }) {
   const news = d.feed.filter((i) => i.kind !== "envelope");
   const unread = news.filter((i) => !i.opened_at);
   const latest = unread[0] || news[0];
-  const openedCount = d.feed.filter((i) => i.opened_at).length;
   const quiz = d.quizzes.find((q) => !q.answered_at);
 
   return (
@@ -183,31 +183,41 @@ function Home({ me, d, reload, onOpen, go, openSub }) {
         </div>
       )}
 
-      <Cluster count={openedCount} />
+      <TwoClocks himTz={d.himTz} />
     </div>
   );
 }
 
-function Cluster({ count }) {
-  const rows = useMemo(() => {
-    const shape = [3, 4, 5, 6, 6, 5, 5, 4, 4, 3, 3, 2, 2, 1];
-    let left = count;
-    return shape.map((n) => {
-      const on = Math.max(0, Math.min(n, left));
-      left -= on;
-      return { n, on };
-    });
-  }, [count]);
+function TwoClocks({ himTz }) {
+  const [, tick] = useState(0);
+  useEffect(() => { const t = setInterval(() => tick((x) => x + 1), 20000); return () => clearInterval(t); }, []);
+  const mine = myTz();
+  const fmt = (tz) => new Intl.DateTimeFormat("he-IL", { timeZone: tz, hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date());
+  const day = (tz) => new Intl.DateTimeFormat("he-IL", { timeZone: tz, weekday: "long" }).format(new Date());
+  const offset = (tz) => {
+    const p = new Intl.DateTimeFormat("en-US", { timeZone: tz, timeZoneName: "longOffset" }).formatToParts(new Date()).find((x) => x.type === "timeZoneName")?.value || "GMT";
+    const m = p.match(/GMT([+-])(\d{2}):?(\d{2})?/);
+    return m ? (m[1] === "-" ? -1 : 1) * (+m[2] + (+(m[3] || 0)) / 60) : 0;
+  };
+  const diff = offset(himTz) - offset(mine);
+  const icon = (tz) => {
+    const h = +new Intl.DateTimeFormat("en-GB", { timeZone: tz, hour: "2-digit", hourCycle: "h23" }).format(new Date());
+    return h >= 6 && h < 19 ? "☀️" : "🌙";
+  };
   return (
-    <div className="card center">
-      <div className="muted small">האשכול שלנו</div>
-      <div className="cluster">
-        <div style={{ fontSize: 18, marginBottom: -4 }}>🌿</div>
-        {rows.slice(0, Math.max(4, (rows.findIndex((r) => r.on < r.n) + 1 || rows.length + 1) + 1)).map((r, i) => (
-          <div className="r" key={i}>{Array.from({ length: r.n }).map((_, j) => <span key={j} className={`g ${j < r.on ? "" : "off"}`} />)}</div>
-        ))}
+    <div className="card clocks">
+      <div className="clock">
+        <div className="clock-label">{icon(mine)} השעה אצלך</div>
+        <div className="clock-time">{fmt(mine)}</div>
+        <div className="clock-day">{day(mine)}</div>
       </div>
-      <div className="small">{count} ענבים באשכול</div>
+      <div className="clock-sep">♥</div>
+      <div className="clock">
+        <div className="clock-label">{icon(himTz)} השעה אצל עידו</div>
+        <div className="clock-time">{fmt(himTz)}</div>
+        <div className="clock-day">{day(himTz)}</div>
+      </div>
+      {diff !== 0 && <div className="clock-diff">אצל עידו {Math.abs(diff)} שעות {diff > 0 ? "קדימה" : "אחורה"}</div>}
     </div>
   );
 }

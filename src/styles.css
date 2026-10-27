@@ -281,3 +281,10 @@ body,.app{background:linear-gradient(180deg,#2A0A3C 0px,#4A1866 130px,#B98AB8 21
 .quiz-teaser h3 { margin: 0; font-size: 20px; }
 .quiz-teaser .qt-ic { font-size: 30px; line-height: 1; }
 .quiz-teaser .btn { min-width: 150px; min-height: 42px; }
+
+.clocks { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; text-align: center; gap: 6px; padding: 18px 12px 14px; }
+.clock-label { font-size: 13px; color: var(--muted); }
+.clock-time { font-family: var(--display); font-size: 36px; color: var(--grape); line-height: 1.1; direction: ltr; }
+.clock-day { font-size: 12px; color: var(--muted); }
+.clock-sep { color: var(--gold); font-size: 18px; }
+.clock-diff { grid-column: 1 / -1; font-size: 12px; color: var(--grape-mid); background: var(--lav-soft); border-radius: 999px; padding: 4px 12px; justify-self: center; margin-top: 4px; }

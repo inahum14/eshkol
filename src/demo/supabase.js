@@ -10,6 +10,7 @@ const H = 3600e3;
 
 const db = {
   profiles: [
+    { id: "a1", role: "admin", display_name: "עידו", timezone: "Asia/Jerusalem" },
     { id: "p1", role: "partner", display_name: "עופרי", timezone: Intl.DateTimeFormat().resolvedOptions().timeZone, last_active_at: iso(-5 * 60e3), created_at: iso(-30 * 24 * H) },
   ],
   settings: [{ id: 1, daily_grapes: 1, grape_ttl_hours: 72, quiet_start: "23:00:00", quiet_end: "08:00:00", active_override_minutes: 15, return_clock_enabled: true, return_date: null, weekly_video_open_dow: 5, weekly_video_grace_dow: 6 }],
