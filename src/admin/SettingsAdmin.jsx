@@ -145,8 +145,8 @@ function EmergencyEditor() {
         <details key={c}>
           <summary style={{ cursor: "pointer", fontWeight: 500 }}>{c} ({items.length})</summary>
           {items.map((r) => (
-            <div key={r.id} className="row between small" style={{ padding: "4px 0" }}>
-              <span>{r.label}: <b dir="ltr">{r.value}</b></span>
+            <div key={r.id} className="row between small em-row">
+              <span style={{ minWidth: 0, overflowWrap: "anywhere" }}>{r.label}: <b dir="ltr">{r.value}</b></span>
               <button className="linkbtn" onClick={() => del(r)}>מחיקה</button>
             </div>
           ))}

@@ -389,3 +389,23 @@ body,.app{background:linear-gradient(180deg,#2A0A3C 0px,#4A1866 130px,#B98AB8 21
 .wish-row { display: flex; align-items: center; gap: 12px; background: var(--paper); border-radius: 14px; padding: 12px 14px; }
 .wish-check { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--lav); background: #fff; cursor: pointer; flex-shrink: 0; }
 .wish-check:not(:disabled):active { background: var(--gold); border-color: var(--gold); }
+
+/* layout safety */
+.page-head { padding: 0 72px; }
+.page-head h1 { line-height: 1.25; }
+.em-row { padding: 6px 0; border-bottom: 1px solid var(--line); gap: 10px; }
+.em-row .linkbtn { flex-shrink: 0; }
+.topbar > div:first-child { min-width: 0; }
+.topbar .title { overflow-wrap: anywhere; }
+.item .grow { min-width: 0; }
+.card, .tl-card, .exp-body { overflow-wrap: anywhere; }
+.chips { row-gap: 8px; }
+.quote { margin-bottom: 18px; }
+@media (max-width: 380px) {
+  .topbar .title { font-size: 24px; }
+  .pills .coin-pill { font-size: 16px; padding: 4px 9px 4px 7px; }
+  .clocks .clock-time { font-size: 26px; }
+  .stock-tile b { font-size: 24px; }
+  .env-grid2 { gap: 10px; }
+  .env-art { width: 92px; height: 62px; }
+}

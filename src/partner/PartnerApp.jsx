@@ -229,7 +229,7 @@ function ReturnClock({ settings, reload }) {
 function Mine({ d, openSub, reload }) {
   return (
     <div className="stack">
-      <div className="topbar"><div className="title">שלי</div></div>
+      <div className="env-head"><h1>הפינה שלי</h1><p>כל מה שצריך, במקום אחד</p></div>
       <ReturnClock settings={d.settings} reload={reload} />
       <div className="list">
         <Row ic="🙏" t="בקשה ממך" s="רוצה משהו מסוים? תכתבי לי" onClick={() => openSub("request")} />

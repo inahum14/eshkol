@@ -14,7 +14,7 @@ export default function Quizzes({ quizzes, reload }) {
 
   return (
     <div className="stack">
-      <div className="topbar"><div className="title">חידות</div></div>
+      <div className="env-head"><h1>חידות</h1><p>כל תשובה נכונה = ענב 🍇</p></div>
       <div className="card soft center">
         <div>צדקת ב-<b>{correct}</b> מתוך <b>{done.length}</b> חידות</div>
       </div>
