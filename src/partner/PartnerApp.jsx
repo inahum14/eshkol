@@ -126,16 +126,19 @@ function Home({ me, d, reload, onOpen, go, openSub }) {
 
 
       {latest ? (
-        <div className={`card hero clickable`} onClick={() => onOpen(latest)}>
-          <div className="row between">
-            <span className="chip gold">{latest.opened_at ? "האחרון ממני" : "חדש ממני ✨"}</span>
-            <span style={{ fontSize: 28 }}>{MEDIA_ICON[latest.media_type]}</span>
-          </div>
-          <h2 style={{ marginTop: 12 }}>{latest.title}</h2>
-          <button className="btn gold" style={{ marginTop: 8 }}>{latest.opened_at ? "לראות שוב" : "לפתוח"}</button>
+        <div className="card hero clickable hero-center" onClick={() => onOpen(latest)}>
+          <span className="chip gold">{latest.opened_at ? "האחרון ממני" : "חדש ממני ✨"}</span>
+          <div className="hero-ic">{MEDIA_ICON[latest.media_type]}</div>
+          <h2>{latest.title}</h2>
+          <button className="btn gold">{latest.opened_at ? "לראות שוב" : "לפתוח"}</button>
         </div>
       ) : (
-        <div className="card hero"><h3>עוד מעט יגיע לפה משהו ממני 💜</h3><p className="muted">בינתיים, מחכות לך מעטפות.</p></div>
+        <div className="card hero hero-center">
+          <div className="hero-ic">💌</div>
+          <h2>עוד רגע יגיע לכאן משהו ממני</h2>
+          <p className="muted" style={{ margin: 0 }}>בינתיים, מחכות לך מעטפות</p>
+          <button className="btn gold" onClick={() => go("env")}>למעטפות</button>
+        </div>
       )}
 
       <div className="grid2">

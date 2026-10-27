@@ -188,15 +188,20 @@ b, strong { font-weight: 400; color: var(--grape-deep); }
 .tabbar button.center-tab { position: relative; padding-top: 0; color: var(--grape); }
 .tabbar button.center-tab .ic {
   width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; font-size: 30px;
-  background: var(--grape); border: 5px solid var(--cream); margin-top: -34px; margin-bottom: 2px;
+  background: var(--grape); border: 5px solid var(--cream); margin-top: -22px; margin-bottom: 2px;
   box-shadow: 0 6px 16px rgba(75, 42, 107, .28); transition: transform .15s ease;
 }
 .tabbar button.center-tab.on .ic { background: var(--grape); box-shadow: 0 6px 18px rgba(75, 42, 107, .4), 0 0 0 3px var(--gold); }
 .tabbar button.center-tab:active .ic { transform: scale(.94); }
-.tabbar button.center-tab .badge { top: -32px; left: calc(50% - 30px); }
+.tabbar button.center-tab .badge { top: -20px; left: calc(50% - 30px); }
 
 /* first-launch welcome */
 .welcome { position: fixed; inset: 0; z-index: 90; background: var(--cream); display: flex; align-items: center; justify-content: center; padding: 24px; animation: fade .3s ease; }
 .welcome-inner { max-width: 380px; width: 100%; text-align: center; display: flex; flex-direction: column; gap: 14px; }
 .welcome-inner h1 { font-size: 34px; margin: 6px 0 0; }
 .welcome-inner p { font-size: 17px; margin: 0; }
+
+.hero-center { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 22px 16px; }
+.hero-center h2 { margin: 0; font-size: 26px; }
+.hero-center .btn { min-width: 160px; }
+.hero-ic { font-size: 38px; line-height: 1; }
