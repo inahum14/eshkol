@@ -11,9 +11,9 @@ import Emergency from "../shared/Emergency";
 import { WeeklyVideo, RequestFromYou, GrapeRequest, Vent, Archive } from "./Mine";
 
 const TABS = [
-  { id: "home", label: "בית", ic: "🍇" },
-  { id: "env", label: "מעטפות", ic: "💌" },
   { id: "quiz", label: "חידות", ic: "🧩" },
+  { id: "env", label: "מעטפות", ic: "💌" },
+  { id: "home", label: "בית", ic: "🍇", center: true },
   { id: "map", label: "מפה", ic: "📍" },
   { id: "mine", label: "שלי", ic: "💜" },
 ];
@@ -46,6 +46,16 @@ export default function PartnerApp({ me }) {
 
   useEffect(() => { sessionStorage.setItem("tab", tab); window.scrollTo(0, 0); }, [tab]);
 
+  const [welcome, setWelcome] = useState(false);
+  useEffect(() => {
+    pushStatus().then((st) => {
+      let seen = false;
+      try { seen = localStorage.getItem("eshkol-welcomed") === "1"; } catch { /* ignore */ }
+      if (st === "off" && Notification.permission === "granted") enablePush().catch(() => {});
+      else if (st === "off" && isStandalone() && !seen) setWelcome(true);
+    });
+  }, []);
+
   if (!d) return <div className="app"><Loading /></div>;
 
   const unreadCount = d.feed.filter((i) => i.kind !== "envelope" && !i.opened_at).length;
@@ -57,7 +67,7 @@ export default function PartnerApp({ me }) {
       {tab === "env" && <Envelopes d={d} onOpen={setOpenItem} openSub={setSub} />}
       {tab === "quiz" && <Quizzes quizzes={d.quizzes} reload={load} />}
       {tab === "map" && <MapJournal canEdit />}
-      {tab === "mine" && <Mine d={d} openSub={setSub} />}
+      {tab === "mine" && <Mine d={d} openSub={setSub} reload={load} />}
 
       {openItem && (
         <ItemView item={openItem} grapes={d.grapes} onClose={() => { setOpenItem(null); load(); }}
@@ -74,9 +84,11 @@ export default function PartnerApp({ me }) {
         </Sheet>
       )}
 
+      {welcome && <Welcome me={me} done={() => setWelcome(false)} />}
+
       <nav className="tabbar">
         {TABS.map((t) => (
-          <button key={t.id} className={tab === t.id ? "on" : ""} onClick={() => setTab(t.id)}>
+          <button key={t.id} className={`${tab === t.id ? "on" : ""} ${t.center ? "center-tab" : ""}`} onClick={() => setTab(t.id)}>
             <span className="ic">{t.ic}</span>{t.label}
             {t.id === "home" && unreadCount > 0 && <span className="badge">{unreadCount}</span>}
             {t.id === "quiz" && quizOpen > 0 && <span className="badge">{quizOpen}</span>}
@@ -97,10 +109,6 @@ function greeting(tz) {
 }
 
 function Home({ me, d, reload, onOpen, go, openSub }) {
-  const toast = useToast();
-  const [push, setPush] = useState("on");
-  useEffect(() => { pushStatus().then(setPush); }, []);
-
   const news = d.feed.filter((i) => i.kind !== "envelope");
   const unread = news.filter((i) => !i.opened_at);
   const latest = unread[0] || news[0];
@@ -116,21 +124,6 @@ function Home({ me, d, reload, onOpen, go, openSub }) {
         </div>
       </div>
 
-      {push !== "on" && push !== "unsupported" && (
-        <div className="card gold stack">
-          <b>להפעיל התראות?</b>
-          <p className="small">ככה תדעי מיד כשמחכה לך משהו ממני.</p>
-          {push === "denied"
-            ? <p className="small">ההתראות חסומות. אפשר להפעיל ב: הגדרות ← התראות ← אשכול.</p>
-            : <button className="btn" onClick={async () => {
-                try { await enablePush(); setPush("on"); toast("ההתראות פועלות 💜"); }
-                catch (e) { toast(e.message); }
-              }}>להפעיל התראות</button>}
-          {!isStandalone() && <p className="small muted">טיפ: התראות עובדות רק כשפותחים מהאייקון במסך הבית.</p>}
-        </div>
-      )}
-
-      <ReturnClock settings={d.settings} reload={reload} />
 
       {latest ? (
         <div className={`card hero clickable`} onClick={() => onOpen(latest)}>
@@ -245,10 +238,11 @@ function ReturnClock({ settings, reload }) {
   );
 }
 
-function Mine({ d, openSub }) {
+function Mine({ d, openSub, reload }) {
   return (
     <div className="stack">
       <div className="topbar"><div className="title">שלי</div></div>
+      <ReturnClock settings={d.settings} reload={reload} />
       <div className="list">
         <Row ic="🙏" t="בקשה ממך" s="רוצה משהו מסוים? תכתבי לי" onClick={() => openSub("request")} />
         <Row ic="🍇" t="לבקש ענב" s="עם סיבה קטנה" onClick={() => openSub("grape")} />
@@ -272,6 +266,30 @@ function Row({ ic, t, s, onClick }) {
       <div className="ico">{ic}</div>
       <div className="grow"><div className="t">{t}</div><div className="muted small">{s}</div></div>
       <span className="muted">‹</span>
+    </div>
+  );
+}
+
+function Welcome({ me, done }) {
+  const [busy, setBusy] = useState(false);
+  const finish = () => {
+    try { localStorage.setItem("eshkol-welcomed", "1"); } catch { /* ignore */ }
+    done();
+  };
+  const start = async () => {
+    setBusy(true);
+    try { await enablePush(); } catch { /* she can still use the app */ }
+    finish();
+  };
+  return (
+    <div className="welcome">
+      <div className="welcome-inner">
+        <img src="/icons/icon-192.png" alt="" width="104" height="104" style={{ borderRadius: 28, margin: "0 auto" }} />
+        <h1>היי {me.display_name} 💜</h1>
+        <p>זה המקום הקטן שלנו לכל הטיול.<br />כאן יחכו לך הפתעות, מעטפות וחידות ממני.</p>
+        <p className="muted">כדי שתדעי ברגע שמשהו מגיע, צריך לאשר התראות.</p>
+        <button className="btn gold block" disabled={busy} onClick={start}>יאללה, מתחילים</button>
+      </div>
     </div>
   );
 }

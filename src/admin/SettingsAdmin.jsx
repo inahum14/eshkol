@@ -32,7 +32,7 @@ export default function SettingsAdmin() {
     await upd({ return_clock_enabled: true }, "השעון הופעל ✈️");
     const { data: p } = await supabase.from("profiles").select("id").eq("role", "partner").single();
     if (p) await supabase.from("content_items").insert({
-      kind: "live", media_type: "note", title: "שאלה קטנה ✈️", body: "מתי את חוזרת? 💜\nיש לך עכשיו שעון במסך הבית, אפשר לבחור שם תאריך.",
+      kind: "live", media_type: "note", title: "שאלה קטנה ✈️", body: "מתי את חוזרת? 💜\nבעמוד \"שלי\" יש עכשיו שעון חזרה, אפשר לבחור שם תאריך.",
     });
   };
 
