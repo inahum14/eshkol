@@ -208,7 +208,7 @@ b, strong { font-weight: 400; color: var(--grape-deep); }
 
 /* ===== theme D: purple sunset ===== */
 :root{--cream:#F3E9DC;--paper:#FFFBF5;--line:#E6D6C2;--grape:#3E1157;--grape-mid:#7B2E8E;--lav-soft:#EFE2F3;--lav:#C9A6D9;--gold:#D2A23A;--gold-soft:#F6E6C2;--grape-deep:#2A0A3C;--muted:#8A6E86}
-body,.app{background:linear-gradient(180deg,#2A0A3C 0px,#4A1866 230px,#B98AB8 330px,#F3E9DC 430px,#EFE2D2 100%) no-repeat,#EFE2D2}
+body,.app{background:linear-gradient(180deg,#2A0A3C 0px,#4A1866 130px,#B98AB8 215px,#F3E9DC 300px,#EFE2D2 100%) no-repeat,#EFE2D2}
 .topbar .title{color:#FFF3DD}.topbar .muted{color:#D9C2EA}
 .card{border:0;box-shadow:0 8px 24px rgba(62,17,87,.12);border-radius:22px}
 .card.hero{background:linear-gradient(150deg,#6A2491 0%,#3E1157 60%,#250836 100%);box-shadow:0 20px 44px rgba(20,4,30,.45);border:1px solid rgba(226,182,83,.35)}
