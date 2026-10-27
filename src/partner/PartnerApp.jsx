@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase, rpc } from "../lib/supabase";
 import { daysUntil, timeLeft, myTz } from "../lib/time";
 import { enablePush, pushStatus, isStandalone } from "../lib/push";
-import { Sheet, useToast, MEDIA_ICON, Loading } from "../ui";
+import { Sheet, useToast, MEDIA_ICON, SplashGate } from "../ui";
 import Envelopes from "./Envelopes";
 import ItemView from "./ItemView";
 import Quizzes from "./Quizzes";
@@ -57,18 +57,21 @@ export default function PartnerApp({ me }) {
     });
   }, []);
 
-  if (!d) return <div className="app"><Loading /></div>;
+  if (!d) return <SplashGate ready={false} />;
 
   const unreadCount = d.feed.filter((i) => i.kind !== "envelope" && !i.opened_at).length;
   const quizOpen = d.quizzes.filter((q) => !q.answered_at).length;
 
   return (
+    <SplashGate ready>
     <div className="app">
+      <div key={tab} className="page-anim">
       {tab === "home" && <Home me={me} d={d} reload={load} onOpen={setOpenItem} go={setTab} openSub={setSub} />}
       {tab === "env" && <Envelopes d={d} onOpen={setOpenItem} openSub={setSub} />}
       {tab === "quiz" && <Quizzes quizzes={d.quizzes} reload={load} />}
       {tab === "map" && <MapJournal canEdit />}
       {tab === "mine" && <Mine d={d} openSub={setSub} reload={load} />}
+      </div>
 
       {openItem && (
         <ItemView item={openItem} grapes={d.grapes} onClose={() => { setOpenItem(null); load(); }}
@@ -98,6 +101,7 @@ export default function PartnerApp({ me }) {
         ))}
       </nav>
     </div>
+    </SplashGate>
   );
 }
 

@@ -121,7 +121,32 @@ export async function uploadWithProgress(blob, setProgress) {
 }
 
 export function Loading() {
-  return <div className="empty">רגע… 🍇</div>;
+  return (
+    <div className="splash">
+      <div className="splash-glow" />
+      <svg className="splash-pin" width="84" height="96" viewBox="0 0 30 34" aria-hidden="true">
+        <path d="M15 33C15 33 2 20.5 2 12.5C2 5.6 7.8 1 15 1s13 4.6 13 11.5C28 20.5 15 33 15 33Z" fill="#F0C96A" />
+        <path d="M15 18.6c-.3 0-4.6-2.8-4.6-5.6 0-1.5 1.1-2.6 2.5-2.6.9 0 1.6.5 2.1 1.2.5-.7 1.2-1.2 2.1-1.2 1.4 0 2.5 1.1 2.5 2.6 0 2.8-4.3 5.6-4.6 5.6Z" fill="#3E1157" />
+      </svg>
+      <div className="splash-name">אני כאן</div>
+      <div className="splash-dots"><i /><i /><i /></div>
+    </div>
+  );
+}
+
+/** Keeps the splash up briefly and fades it out, so it never just flashes. */
+export function SplashGate({ ready, children }) {
+  const [minDone, setMinDone] = useState(false);
+  const [gone, setGone] = useState(false);
+  useEffect(() => { const t = setTimeout(() => setMinDone(true), 1100); return () => clearTimeout(t); }, []);
+  const show = ready && minDone;
+  useEffect(() => { if (show) { const t = setTimeout(() => setGone(true), 450); return () => clearTimeout(t); } }, [show]);
+  return (
+    <>
+      {show && children}
+      {!gone && <div className={show ? "splash-wrap out" : "splash-wrap"}><Loading /></div>}
+    </>
+  );
 }
 
 export function useInterval(fn, ms) {
