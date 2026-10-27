@@ -93,7 +93,9 @@ Deno.serve(async (req) => {
       }
     }
     const { data: subs } = await db.from("push_subscriptions").select("*").eq("user_id", n.target_user);
-    const payload = JSON.stringify({ title: n.title, body: n.body, url: n.url ?? "/", urgent: n.urgent, tag: n.urgent ? "urgent-" + n.id : undefined });
+    let badge = 0;
+    if (target.role === "partner") { const { data: c } = await db.rpc("partner_unread_count"); badge = c ?? 0; }
+    const payload = JSON.stringify({ title: n.title, body: n.body, url: n.url ?? "/", urgent: n.urgent, badge, tag: n.urgent ? "urgent-" + n.id : undefined });
     for (const s of subs ?? []) {
       try {
         await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, payload,

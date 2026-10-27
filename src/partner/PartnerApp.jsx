@@ -76,6 +76,7 @@ export default function PartnerApp({ me }) {
       {sub && (
         <Sheet onClose={() => setSub(null)}>
           {sub === "request" && <RequestFromYou done={() => setSub(null)} />}
+          {sub === "grapes" && <GrapesInfo grapes={d.grapes} settings={d.settings} ask={() => setSub("grape")} />}
           {sub === "grape" && <GrapeRequest done={() => { setSub(null); load(); }} />}
           {sub === "weekly" && <WeeklyVideo weekly={d.weekly} done={() => { setSub(null); load(); }} />}
           {sub === "vent" && <Vent done={() => setSub(null)} />}
@@ -90,7 +91,6 @@ export default function PartnerApp({ me }) {
         {TABS.map((t) => (
           <button key={t.id} className={`${tab === t.id ? "on" : ""} ${t.center ? "center-tab" : ""}`} onClick={() => setTab(t.id)}>
             <span className="ic">{t.ic}</span>{t.label}
-            {t.id === "home" && unreadCount > 0 && <span className="badge">{unreadCount}</span>}
             {t.id === "quiz" && quizOpen > 0 && <span className="badge">{quizOpen}</span>}
           </button>
         ))}
@@ -123,6 +123,9 @@ function Home({ me, d, reload, onOpen, go, openSub }) {
           <div className="title">{greeting(myTz())}, {me.display_name}</div>
           <div className="muted">משהו קטן ממני, לכל הדרך</div>
         </div>
+        <button className="coin-pill" onClick={() => openSub("grapes")} aria-label="הענבים שלי">
+          <span className="coin-ic">🍇</span><span className="coin-n">{d.grapes.length}</span>
+        </button>
       </div>
 
 
@@ -142,19 +145,12 @@ function Home({ me, d, reload, onOpen, go, openSub }) {
         </div>
       )}
 
-      <div className="grid2">
-        <div className="card clickable" onClick={() => go("env")}>
-          <div className="muted small">ענבים לפתיחת מעטפות</div>
-          <div className="grapes-row" style={{ margin: "8px 0" }}>
-            {d.grapes.length ? d.grapes.map((g) => <span key={g.id} className="grape" />) : <span className="grape empty" />}
-          </div>
-          <div className="small">{d.grapes.length ? timeLeft(d.grapes[0].expires_at) + " לענב הקרוב" : "אין כרגע ענבים"}</div>
-        </div>
-        <div className="card">
+      <div className="card row between streak-card">
+        <div>
           <div className="muted small">רצף ימים</div>
-          <div className="streak">🔥 {d.streak.streak}</div>
-          <div className="small">{d.streak.today_done ? "היום כבר נספר ✓" : "עוד לא היום"}</div>
+          <div className="small">{d.streak.today_done ? "היום כבר נספר ✓" : "עוד לא היום, פתחי משהו קטן"}</div>
         </div>
+        <div className="streak">🔥 {d.streak.streak}</div>
       </div>
 
       {quiz && (
@@ -304,5 +300,39 @@ function PinHeart() {
       <path d="M15 33C15 33 2 20.5 2 12.5C2 5.6 7.8 1 15 1s13 4.6 13 11.5C28 20.5 15 33 15 33Z" fill="#F0C96A" />
       <path d="M15 18.6c-.3 0-4.6-2.8-4.6-5.6 0-1.5 1.1-2.6 2.5-2.6.9 0 1.6.5 2.1 1.2.5-.7 1.2-1.2 2.1-1.2 1.4 0 2.5 1.1 2.5 2.6 0 2.8-4.3 5.6-4.6 5.6Z" fill="#3E1157" />
     </svg>
+  );
+}
+
+function GrapesInfo({ grapes, settings, ask }) {
+  const now = new Date();
+  const midnight = new Date(now); midnight.setHours(24, 0, 0, 0);
+  const hrs = Math.floor((midnight - now) / 3600000);
+  const mins = Math.floor(((midnight - now) % 3600000) / 60000);
+  const SRC = { daily: "ענב יומי", bonus: "ענב במתנה", quiz: "פרס על חידה", request: "ענב שביקשת" };
+  return (
+    <div className="stack">
+      <div className="center">
+        <div style={{ fontSize: 46 }}>🍇</div>
+        <h2 style={{ margin: 0 }}>{grapes.length ? `יש לך ${grapes.length} ענבים` : "אין כרגע ענבים"}</h2>
+        <p className="muted">כל מעטפה נפתחת עם ענב אחד</p>
+      </div>
+      <div className="card soft center">
+        <div className="muted small">הענב הבא מגיע</div>
+        <b style={{ fontSize: 20 }}>בעוד {hrs} שע׳ ו-{mins} דק׳</b>
+        <div className="muted small">כל לילה בחצות · {settings.daily_grapes > 1 ? `${settings.daily_grapes} ענבים ביום` : "ענב אחד ביום"}</div>
+      </div>
+      {grapes.length > 0 && (
+        <div className="list">
+          {grapes.map((g) => (
+            <div key={g.id} className="item" style={{ cursor: "default" }}>
+              <span className="grape" />
+              <div className="grow"><div className="t">{SRC[g.source] || "ענב"}</div><div className="muted small">{timeLeft(g.expires_at)} עד שהוא פג</div></div>
+            </div>
+          ))}
+        </div>
+      )}
+      <p className="muted small center">ענב שלא משתמשים בו נשאר 72 שעות.</p>
+      <button className="btn block" onClick={ask}>לבקש ענב נוסף</button>
+    </div>
   );
 }

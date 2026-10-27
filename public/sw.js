@@ -30,7 +30,7 @@ self.addEventListener("push", (e) => {
       tag: d.tag,
       data: { url: d.url || "/" },
       requireInteraction: !!d.urgent,
-    }).then(() => self.navigator?.setAppBadge?.().catch(() => {})),
+    }).then(() => (d.badge > 0 ? self.navigator?.setAppBadge?.(d.badge) : self.navigator?.setAppBadge?.())?.catch?.(() => {})),
   );
 });
 
