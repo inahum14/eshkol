@@ -19,7 +19,7 @@ async function nominatim(path) {
   return r.json();
 }
 
-export default function MapJournal({ canEdit }) {
+export default function MapJournal({ canEdit, herView = false }) {
   const [dests, setDests] = useState([]);
   const [sel, setSel] = useState(null);
   const [adding, setAdding] = useState(false);
@@ -63,13 +63,13 @@ export default function MapJournal({ canEdit }) {
 
   return (
     <div className="stack map-page">
-      {canEdit && (
+      {(canEdit || herView) && (
         <div className="env-head">
           <h1>המסלול שלי</h1>
           <p>{dests.length ? `${countries} מדינות · ${dests.length} יעדים · ${doneCount} חוויות` : "כאן יתמלא כל הטיול שלך"}</p>
         </div>
       )}
-      {!canEdit && dests.length > 0 && <p className="map-stats">{countries} מדינות · {dests.length} יעדים · {doneCount} חוויות</p>}
+      {!canEdit && !herView && dests.length > 0 && <p className="map-stats">{countries} מדינות · {dests.length} יעדים · {doneCount} חוויות</p>}
       <div ref={mapEl} className="map" />
       {canEdit && <button className="btn gold block big-cta" onClick={() => setAdding(true)}>📍 הגעתי ליעד חדש</button>}
 
@@ -84,7 +84,7 @@ export default function MapJournal({ canEdit }) {
                 <div className="tl-card">
                   <div className="row between">
                     <b>{d.name}</b>
-                    {i === 0 && <span className="chip gold">{canEdit ? "את כאן עכשיו" : "היא כאן עכשיו"}</span>}
+                    {i === 0 && <span className="chip gold">{canEdit || herView ? "את כאן עכשיו" : "היא כאן עכשיו"}</span>}
                   </div>
                   <div className="muted small">{d.country ? `${d.country} · ` : ""}{fmtDate(d.arrived_at, myTz())}</div>
                   <div className="tl-meta">✨ {done} חוויות{wish ? ` · ☐ ${wish} ברשימה` : ""}</div>

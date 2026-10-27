@@ -11,6 +11,7 @@ import GrapesAdmin from "./GrapesAdmin";
 import SettingsAdmin from "./SettingsAdmin";
 import MapJournal from "../shared/MapJournal";
 import TwoClocks from "../shared/TwoClocks";
+import PartnerApp from "../partner/PartnerApp";
 
 const TABS = [
   { id: "inbox", label: "אצלי", ic: "📥" },
@@ -26,16 +27,18 @@ function ago(iso) {
   if (!iso) return "עוד לא נכנסה";
   const m = Math.round((Date.now() - new Date(iso)) / 60000);
   if (m < 2) return "פעילה עכשיו";
-  if (m < 60) return `פעילה לפני ${m} דק׳`;
+  if (m < 60) return `לפני ${m} דק׳`;
   const h = Math.round(m / 60);
-  if (h < 24) return `פעילה לפני ${h} שע׳`;
-  return `פעילה לפני ${Math.round(h / 24)} ימים`;
+  if (h < 24) return `לפני ${h} שע׳`;
+  return `לפני ${Math.round(h / 24)} ימים`;
 }
 
 export default function AdminApp({ me }) {
   const [nav, setNav] = useState(() => sessionStorage.getItem("anav") || "inbox");
   const [d, setD] = useState(null);
   const [prefill, setPrefill] = useState(null);
+  const [herView, setHerView] = useState(false);
+  const [wasInPreview, setWasInPreview] = useState(false);
   const [, tick] = useState(0);
   useInterval(() => tick((x) => x + 1), 30000);
 
@@ -75,6 +78,7 @@ export default function AdminApp({ me }) {
   useEffect(() => { sessionStorage.setItem("anav", nav); window.scrollTo(0, 0); }, [nav]);
 
   if (!d) return <SplashGate ready={false} />;
+  if (herView && d.partner) return <PartnerApp me={d.partner} preview onExit={() => { setHerView(false); setWasInPreview(true); window.scrollTo(0, 0); }} />;
 
   const pending = d.vents.filter((v) => !v.answered_at).length + d.reqs.filter((r) => r.status === "pending").length +
     d.greqs.filter((g) => g.status === "pending").length;
@@ -83,11 +87,11 @@ export default function AdminApp({ me }) {
   const tabOf = ["grapes", "map", "settings"].includes(nav) ? "more" : nav;
 
   return (
-    <SplashGate ready>
+    <SplashGate ready skip={wasInPreview}>
       <div className="app admin">
         <div key={nav} className="page-anim">
           {nav === "inbox" ? (
-            <Dashboard me={me} d={d} reload={load} answer={answer} go={go} />
+            <Dashboard me={me} d={d} reload={load} answer={answer} go={go} viewAsHer={() => setHerView(true)} />
           ) : (
             <>
               <div className="page-head">
@@ -118,7 +122,7 @@ export default function AdminApp({ me }) {
   );
 }
 
-function Dashboard({ me, d, reload, answer, go }) {
+function Dashboard({ me, d, reload, answer, go, viewAsHer }) {
   const toast = useToast();
   const [push, setPush] = useState("on");
   useEffect(() => { pushStatus().then(setPush); }, []);
@@ -155,8 +159,9 @@ function Dashboard({ me, d, reload, answer, go }) {
       <div className="topbar">
         <div>
           <div className="title">היי {me?.display_name || "עידו"}</div>
-          <div className="muted">עופרי · {ago(p?.last_active_at)}</div>
+          <div className="muted" style={{ whiteSpace: "nowrap" }}>עופרי: {ago(p?.last_active_at)}</div>
         </div>
+        {p && <button className="her-view-btn" onClick={viewAsHer}><span>👀</span>מעבר לתצוגת עופרי</button>}
         <div className="pills">
           <div className="coin-pill" title="הרצף שלה"><span className="coin-ic">🔥</span><span className="coin-n">{d.streak?.streak ?? 0}</span></div>
           <button className="coin-pill" onClick={() => go("grapes")} title="הענבים שלה"><span className="coin-ic">🍇</span><span className="coin-n">{d.grapes}</span></button>

@@ -1,6 +1,10 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { mediaUrl, pickRecorderType, uploadMedia } from "../lib/media";
 
+export const PreviewCtx = createContext(false);
+export const usePreview = () => useContext(PreviewCtx);
+export const PREVIEW_MSG = "במצב תצוגה שום דבר לא נשלח 💜";
+
 export function Sheet({ onClose, children }) {
   useEffect(() => {
     const prev = document.body.style.overflow;
@@ -135,12 +139,13 @@ export function Loading() {
 }
 
 /** Keeps the splash up briefly and fades it out, so it never just flashes. */
-export function SplashGate({ ready, children }) {
+export function SplashGate({ ready, children, skip = false }) {
   const [minDone, setMinDone] = useState(false);
   const [gone, setGone] = useState(false);
   useEffect(() => { const t = setTimeout(() => setMinDone(true), 1100); return () => clearTimeout(t); }, []);
-  const show = ready && minDone;
-  useEffect(() => { if (show) { const t = setTimeout(() => setGone(true), 450); return () => clearTimeout(t); } }, [show]);
+  const show = ready && (minDone || skip);
+  useEffect(() => { if (show) { const t = setTimeout(() => setGone(true), skip ? 0 : 450); return () => clearTimeout(t); } }, [show, skip]);
+  if (skip && ready) return children;
   return (
     <>
       {show && children}

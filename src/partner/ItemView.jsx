@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { rpc } from "../lib/supabase";
-import { Sheet, MediaView, AudioRecorder, useToast, Progress, MEDIA_ICON } from "../ui";
+import { rpc, supabase } from "../lib/supabase";
+import { Sheet, MediaView, AudioRecorder, useToast, Progress, MEDIA_ICON, usePreview, PREVIEW_MSG } from "../ui";
 import { uploadMedia } from "../lib/media";
 
 /**
@@ -10,9 +10,17 @@ export default function ItemView({ item, grapes, onClose, onNeedGrape }) {
   const [stage, setStage] = useState(item.opened_at ? "view" : item.pre_open_message ? "pre" : item.kind === "envelope" ? "confirm" : "opening");
   const [full, setFull] = useState(item.opened_at ? item : null);
   const [err, setErr] = useState("");
+  const preview = usePreview();
 
   const open = async () => {
     setStage("opening");
+    if (preview) {
+      // Read-only: show the content without marking it opened or spending a grape.
+      const { data } = await supabase.from("content_items").select("*").eq("id", item.id).single();
+      setFull({ ...item, ...data, opened_at: item.opened_at });
+      setStage("view");
+      return;
+    }
     try {
       const r = await rpc("open_item", { p_item: item.id });
       if (r && r.ok === false && r.reason === "no_grapes") { setStage("nograpes"); return; }
@@ -45,7 +53,7 @@ export default function ItemView({ item, grapes, onClose, onNeedGrape }) {
           <p>לפתוח את המעטפה עם ענב אחד?</p>
           <p className="muted small">יש לך {grapes.length} ענבים</p>
           {err && <p className="err">{err}</p>}
-          {grapes.length ? (
+          {grapes.length || preview ? (
             <button className="btn block" onClick={open}>🍇 לפתוח</button>
           ) : (
             <>
@@ -87,7 +95,9 @@ function Reply({ item }) {
 
   if (sent) return <div className="card soft center">✓ התגובה שלך נשלחה 💜</div>;
 
+  const preview = usePreview();
   const send = async () => {
+    if (preview) { toast(PREVIEW_MSG); return; }
     setBusy(true);
     try {
       let media = null;

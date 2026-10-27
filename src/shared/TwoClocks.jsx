@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { myTz } from "../lib/time";
 
-export default function TwoClocks({ otherTz, otherName }) {
+export default function TwoClocks({ otherTz, otherName, selfTz }) {
   const [, tick] = useState(0);
   useEffect(() => { const t = setInterval(() => tick((x) => x + 1), 20000); return () => clearInterval(t); }, []);
-  const mine = myTz();
+  const mine = selfTz || myTz();
   const fmt = (tz) => new Intl.DateTimeFormat("he-IL", { timeZone: tz, hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date());
   const day = (tz) => new Intl.DateTimeFormat("he-IL", { timeZone: tz, weekday: "long" }).format(new Date());
   const offset = (tz) => {

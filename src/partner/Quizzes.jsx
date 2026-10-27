@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { rpc } from "../lib/supabase";
-import { MediaView, Sheet, useToast } from "../ui";
+import { rpc, supabase } from "../lib/supabase";
+import { MediaView, Sheet, useToast, usePreview } from "../ui";
 import { fmtDate, myTz } from "../lib/time";
 
 const LETTERS = ["א", "ב", "ג", "ד"];
@@ -51,18 +51,22 @@ function QuizPlay({ quiz, onClose }) {
   const [revealed, setRevealed] = useState(answered);
   const [explain, setExplain] = useState(null);
   const toast = useToast();
+  const preview = usePreview();
 
   const choose = async (i) => {
     if (picked !== null) return;
     setPicked(i);
     const started = Date.now();
     try {
-      const r = await rpc("answer_quiz", { p_quiz: quiz.id, p_choice: i });
+      const r = preview
+        ? await supabase.from("quizzes").select("correct_index, explanation_item_id").eq("id", quiz.id).single()
+            .then(({ data }) => ({ correct: data.correct_index === i, correct_index: data.correct_index, explanation_item_id: data.explanation_item_id }))
+        : await rpc("answer_quiz", { p_quiz: quiz.id, p_choice: i });
       setResult(r);
       const wait = Math.max(0, SUSPENSE_MS - (Date.now() - started));
       setTimeout(() => {
         setRevealed(true);
-        if (r.correct) toast("נכון!! קיבלת ענב 🍇");
+        if (r.correct) toast(preview ? "נכון! (במצב תצוגה לא נשמר)" : "נכון!! קיבלת ענב 🍇");
       }, wait);
     } catch {
       setPicked(null);
@@ -78,7 +82,9 @@ function QuizPlay({ quiz, onClose }) {
   };
 
   const loadExplain = async () => {
-    const rows = await rpc("get_explanation", { p_quiz: quiz.id });
+    const rows = preview
+      ? await supabase.from("content_items").select("*").eq("id", result.explanation_item_id).then((r) => r.data)
+      : await rpc("get_explanation", { p_quiz: quiz.id });
     setExplain(rows?.[0] || { body: "אין הסבר הפעם 💜" });
   };
 

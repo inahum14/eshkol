@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase, rpc } from "../lib/supabase";
 import { daysUntil, timeLeft, myTz } from "../lib/time";
 import { enablePush, pushStatus, isStandalone } from "../lib/push";
-import { Sheet, useToast, MEDIA_ICON, SplashGate } from "../ui";
+import { Sheet, useToast, MEDIA_ICON, SplashGate, PreviewCtx, usePreview, PREVIEW_MSG } from "../ui";
 import Envelopes from "./Envelopes";
 import ItemView from "./ItemView";
 import Quizzes from "./Quizzes";
@@ -19,8 +19,8 @@ const TABS = [
   { id: "mine", label: "שלי", ic: "💜" },
 ];
 
-export default function PartnerApp({ me }) {
-  const [tab, setTab] = useState(() => sessionStorage.getItem("tab") || "home");
+export default function PartnerApp({ me, preview = false, onExit }) {
+  const [tab, setTab] = useState(() => (preview ? "home" : sessionStorage.getItem("tab") || "home"));
   const [d, setD] = useState(null);
   const [openItem, setOpenItem] = useState(null);
   const [sub, setSub] = useState(null);
@@ -42,14 +42,15 @@ export default function PartnerApp({ me }) {
     load();
     const onVis = () => document.visibilityState === "visible" && setTimeout(load, 600);
     document.addEventListener("visibilitychange", onVis);
-    navigator.clearAppBadge?.().catch(() => {});
+    if (!preview) navigator.clearAppBadge?.().catch(() => {});
     return () => document.removeEventListener("visibilitychange", onVis);
   }, [load]);
 
-  useEffect(() => { sessionStorage.setItem("tab", tab); window.scrollTo(0, 0); }, [tab]);
+  useEffect(() => { if (!preview) sessionStorage.setItem("tab", tab); window.scrollTo(0, 0); }, [tab]);
 
   const [welcome, setWelcome] = useState(false);
   useEffect(() => {
+    if (preview) return;
     pushStatus().then((st) => {
       let seen = false;
       try { seen = localStorage.getItem("eshkol-welcomed") === "1"; } catch { /* ignore */ }
@@ -64,13 +65,20 @@ export default function PartnerApp({ me }) {
   const quizOpen = d.quizzes.filter((q) => !q.answered_at).length;
 
   return (
+    <PreviewCtx.Provider value={preview}>
     <SplashGate ready>
-    <div className="app">
+    <div className={`app ${preview ? "previewing" : ""}`}>
+      {preview && (
+        <div className="preview-bar">
+          <span>👀 ככה עופרי רואה עכשיו</span>
+          <button onClick={onExit}>חזרה לניהול</button>
+        </div>
+      )}
       <div key={tab} className="page-anim">
       {tab === "home" && <Home me={me} d={d} reload={load} onOpen={setOpenItem} go={setTab} openSub={setSub} />}
       {tab === "env" && <Envelopes d={d} onOpen={setOpenItem} openSub={setSub} />}
       {tab === "quiz" && <Quizzes quizzes={d.quizzes} reload={load} />}
-      {tab === "map" && <MapJournal canEdit />}
+      {tab === "map" && <MapJournal canEdit={!preview} herView={preview} />}
       {tab === "mine" && <Mine d={d} openSub={setSub} reload={load} />}
       </div>
 
@@ -103,7 +111,13 @@ export default function PartnerApp({ me }) {
       </nav>
     </div>
     </SplashGate>
+    </PreviewCtx.Provider>
   );
+}
+
+function usePreviewTz(me) {
+  const preview = usePreview();
+  return preview ? me.timezone : myTz();
 }
 
 function greeting(tz) {
@@ -126,7 +140,7 @@ function Home({ me, d, reload, onOpen, go, openSub }) {
       <div className="brand">אני כאן</div>
       <div className="topbar">
         <div>
-          <div className="title">{greeting(myTz())}, {me.display_name}</div>
+          <div className="title">{greeting(usePreviewTz(me))}, {me.display_name}</div>
           <div className="muted">משהו קטן ממני, לכל הדרך</div>
         </div>
         <div className="pills">
@@ -139,7 +153,7 @@ function Home({ me, d, reload, onOpen, go, openSub }) {
         </div>
       </div>
 
-      <TwoClocks otherTz={d.himTz} otherName="עידו" />
+      <TwoClocks otherTz={d.himTz} otherName="עידו" selfTz={usePreviewTz(me)} />
 
 
       {latest ? (
@@ -202,8 +216,10 @@ function ReturnClock({ settings, reload }) {
   const [date, setDate] = useState("");
   const [edit, setEdit] = useState(false);
   const toast = useToast();
+  const preview = usePreview();
   if (!settings.return_clock_enabled) return null;
   const save = async () => {
+    if (preview) { toast(PREVIEW_MSG); return; }
     try { await rpc("set_return_date", { p_date: date }); setEdit(false); toast("נשמר ✈️"); reload(); }
     catch { toast("לא הצלחתי לשמור"); }
   };

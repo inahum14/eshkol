@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { supabase, rpc } from "../lib/supabase";
 import { uploadMedia, pickRecorderType, mediaUrl } from "../lib/media";
-import { Progress, useToast, MEDIA_ICON } from "../ui";
+import { Progress, useToast, MEDIA_ICON, usePreview, PREVIEW_MSG } from "../ui";
 import { fmtDate, fmtDateTime, myTz } from "../lib/time";
 
 /* ---------- weekly round video ---------- */
@@ -79,7 +79,9 @@ function RoundRecorder({ done }) {
     }), 1000);
   };
   const stop = () => { clearInterval(timer.current); rec.current?.state === "recording" && rec.current.stop(); };
+  const preview = usePreview();
   const send = async () => {
+    if (preview) { toast(PREVIEW_MSG); return; }
     setState("sending");
     try {
       const key = await uploadMedia(blob, setProg);
@@ -125,7 +127,9 @@ export function RequestFromYou({ done }) {
   useEffect(() => {
     supabase.from("content_requests").select("*").order("created_at", { ascending: false }).limit(20).then((r) => setList(r.data || []));
   }, []);
+  const preview = usePreview();
   const send = async () => {
+    if (preview) { toast(PREVIEW_MSG); return; }
     setBusy(true);
     const { error } = await supabase.from("content_requests").insert({ request_text: text.trim() });
     setBusy(false);
@@ -160,7 +164,9 @@ export function GrapeRequest({ done }) {
   useEffect(() => {
     supabase.from("grape_requests").select("*").eq("status", "pending").limit(1).then((r) => setPending(r.data?.[0] || false));
   }, []);
+  const preview = usePreview();
   const send = async () => {
+    if (preview) { toast(PREVIEW_MSG); return; }
     const { error } = await supabase.from("grape_requests").insert({ reason: reason.trim() });
     if (error) return toast("לא נשלח");
     toast("ביקשת ענב 🍇");
@@ -188,7 +194,9 @@ export function Vent({ done }) {
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(null);
   const toast = useToast();
+  const preview = usePreview();
   const send = async (urgent) => {
+    if (preview) { toast(PREVIEW_MSG); return; }
     setBusy(true);
     const { error } = await supabase.from("vent_messages").insert({ body: text.trim(), urgent });
     setBusy(false);
